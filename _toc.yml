@@ -1,0 +1,22 @@
+# Table of contents
+# Learn more at https://jupyterbook.org/customize/toc.html
+
+format: jb-book
+root: index
+
+parts:
+  - caption: Theory and Implementation
+    chapters:
+      - file: bem/01_intro
+      - file: bem/fmm
+      - file: bem/python_api
+      - file: bem/nearfield_potential
+  - caption: Examples
+    chapters:
+      - file: bem/laplace_capacitor
+      - file: bem/poisson
+      - file: bem/maxwell_stabilized
+      - file: bem/brakhage_werner
+  - caption: References
+    chapters:
+      - file: references

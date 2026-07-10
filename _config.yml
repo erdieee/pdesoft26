@@ -1,0 +1,67 @@
+# Book settings
+# Learn more at https://jupyterbook.org/customize/config.html
+
+title: Boundary Element Methods in NGSolve
+author: R. Dorigo
+logo: NGSlogo.png
+copyright : "2026"  # Copyright year to be placed in the footer
+
+repository:
+  url: https://github.com/erdieee/ngs26
+  path_to_book: "" # Leave empty if your _config.yml is in the root directory
+  branch: main     # Change to 'master' if your primary branch is master
+
+exclude_patterns:
+  - ".venv/**"
+  - "_build/**"
+  - ".git/**"
+  - ".ipynb_checkpoints/**"
+  - "README.md"
+  - "SciCADE.ipynb"
+  
+# Execute notebooks when their outputs are missing or stale.
+# See https://jupyterbook.org/content/execute.html
+execute:
+  execute_notebooks: auto
+  timeout: 600
+  
+# Define the name of the latex output file for PDF builds
+# latex:
+#  latex_documents:
+#    targetname: book.tex
+
+# Add a bibtex file so that we can create citations
+bibtex_bibfiles:
+  - references.bib
+bibtex_default_style: unsrtalpha
+bibtex_citestyle: author_year
+
+# Information about where the book exists on the web
+# repository:
+#  url: https://github.com/executablebooks/jupyter-book  # Online location of your book
+#  path_to_book: docs  # Optional path to your book, relative to the repository root
+#  branch: master  # Which branch of the repository should be used when creating links (optional)
+
+# Add GitHub buttons to your book
+# See https://jupyterbook.org/customize/config.html#add-a-link-to-your-repository
+html:
+  use_issues_button: false
+  use_repository_button: true
+
+# Enable the Google Colab launch button
+launch_buttons:
+  colab_url: "https://colab.research.google.com"
+
+
+parse:
+  myst_enable_extensions:
+#    # don't forget to list any other extensions you want enabled,
+#    # including those that are enabled by default! See here: https://jupyterbook.org/en/stable/customize/config.html
+    - html_image
+    - dollarmath
+    - amsmath
+    - linkify
+    - colon_fence
+  myst_dmath_double_inline: false
+  
+  

@@ -1,0 +1,7 @@
+jupyter-book<2
+ngsolve
+numpy
+matplotlib
+ipywidgets
+anywidget
+ghp-import
