@@ -1,0 +1,698 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Fast Multipole Acceleration &#8212; Boundary Element Methods in NGSolve</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=3c74b3bc" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=9c3e77be" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css?v=8cd3d715" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../_static/togglebutton.js?v=b8b12719"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'bem/fmm';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Python API" href="python_api.html" />
+    <link rel="prev" title="Boundary Element Methods" href="01_intro.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/NGSlogo.png" class="logo__image only-light" alt="Boundary Element Methods in NGSolve - Home"/>
+    <img src="../_static/NGSlogo.png" class="logo__image only-dark pst-js-only" alt="Boundary Element Methods in NGSolve - Home"/>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../index.html">
+                    Boundary Element Methods in NGSolve
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Theory and Implementation</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="01_intro.html">Boundary Element Methods</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Fast Multipole Acceleration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python_api.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nearfield_potential.html">Nearfield Potential Evaluation</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="laplace_capacitor.html">Laplace Plate Capacitor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="poisson.html">Poisson Equation BEM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maxwell_stabilized.html">Maxwell Stabilized</a></li>
+<li class="toctree-l1"><a class="reference internal" href="brakhage_werner.html">Scattering Problem</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">References</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../references.html">Bibliography</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-launch-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Launch interactive content">
+    <i class="fas fa-rocket"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://colab.research.google.com/github/erdieee/ngs26/blob/main/bem/fmm.ipynb" target="_blank"
+   class="btn btn-sm dropdown-item"
+   title="Launch on Colab"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  
+    <img alt="Colab logo" src="../_static/images/logo_colab.png">
+  </span>
+<span class="btn__text-container">Colab</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+<a href="https://github.com/erdieee/ngs26" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/bem/fmm.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button pst-navbar-icon"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Fast Multipole Acceleration</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#where-fmm-enters-bem">Where FMM Enters BEM</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#near-field-and-far-field">Near Field and Far Field</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#regular-and-singular-expansions">Regular and Singular Expansions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bessel-and-hankel-stability">Bessel and Hankel Stability</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#multilevel-fmm">Multilevel FMM</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fmm-controls">FMM Controls</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="fast-multipole-acceleration">
+<h1>Fast Multipole Acceleration<a class="headerlink" href="#fast-multipole-acceleration" title="Link to this heading">#</a></h1>
+<p>FMM accelerates Green’s function interactions of the form</p>
+<div class="math notranslate nohighlight">
+\[
+  u(x_j) \approx \sum_{i=1}^N G(x_j,y_i)\,s_i, \qquad j=1,\dots,M.
+\]</div>
+<p>Without compression this is dense interaction work: storage is roughly <span class="math notranslate nohighlight">\(O(MN)\)</span> and a direct matrix vector product is also <span class="math notranslate nohighlight">\(O(MN)\)</span>.</p>
+<p>The fast multipole method avoids treating all interactions equally. Nearby interactions are kept accurate and direct while far interactions are approximated by expansions around cluster centers.</p>
+<section id="where-fmm-enters-bem">
+<h2>Where FMM Enters BEM<a class="headerlink" href="#where-fmm-enters-bem" title="Link to this heading">#</a></h2>
+<p>For a scalar single layer operator, a Galerkin BEM matrix entry is</p>
+<div class="math notranslate nohighlight">
+\[
+   A_{ij}
+  = \langle V\varphi_j, \eta_i \rangle_\Gamma
+  = \int_\Gamma \int_\Gamma
+      \eta_i(x)\,G_\kappa(x,y)\,\varphi_j(y)
+    \,d\sigma_y\,d\sigma_x.
+\]</div>
+<p>After quadrature,</p>
+<div class="math notranslate nohighlight">
+\[
+  A_{ij}
+  \approx
+  \sum_\alpha w_\alpha^x\eta_i(x_\alpha)
+  \underbrace{
+  \sum_\beta G_\kappa(x_\alpha,y_\beta)
+  \underbrace{w_\beta^y\varphi_j(y_\beta)}_{s_\beta^{(j)}}
+  }_{\text{FMM source to target sum}}.
+\]</div>
+<p>The inner sum has exactly the source to target form accelerated by FMM.</p>
+<p>NGSolve combines it with a sparse correction:</p>
+<div class="math notranslate nohighlight">
+\[
+  A = A_{\mathrm{FMM}} + A_{\mathrm{corr}},
+\]</div>
+<p>where <span class="math notranslate nohighlight">\(A_{\mathrm{corr}}\)</span> corrects interactions between touching boundary elements.</p>
+</section>
+<section id="near-field-and-far-field">
+<h2>Near Field and Far Field<a class="headerlink" href="#near-field-and-far-field" title="Link to this heading">#</a></h2>
+<p>For a target cluster, source interactions are split into two classes:</p>
+<ul class="simple">
+<li><p><strong>near field:</strong> source and target clusters are close - these terms are evaluated directly or corrected by special quadrature,</p></li>
+<li><p><strong>far field:</strong> clusters are well separated - their combined effect is represented by multipole and local expansions.</p></li>
+</ul>
+<p>In the implementation this has two near field parts:</p>
+<ul class="simple">
+<li><p><strong>Sparse BEM correction:</strong> touching elements use accurate Sauter Schwab rules <span class="bibtex-citation" id="id1">[<a class="reference internal" href="../references.html#id4" title="Stefan Sauter and Christoph Schwab. Boundary Element Methods. Volume 39 of Springer Series in Computational Mathematics. Springer, 2009. ISBN 978-3-540-68093-2.">SS09</a>]</span> based on Duffy transformations. Their ordinary quadrature contribution is replaced by the accurate local matrix.</p></li>
+<li><p><strong>Direct FMM fallback:</strong> boxes that are not well separated are evaluated directly. SIMD packs several leaf sources and evaluates their kernel values together.</p></li>
+</ul>
+</section>
+<section id="regular-and-singular-expansions">
+<h2>Regular and Singular Expansions<a class="headerlink" href="#regular-and-singular-expansions" title="Link to this heading">#</a></h2>
+<p>Following <span class="bibtex-citation" id="id2">[<a class="reference internal" href="../references.html#id2" title="Nail A. Gumerov and Ramani Duraiswami. Fast Multipole Methods for the Helmholtz Equation in Three Dimensions. Elsevier, 2004.">GD04</a>]</span>, the Helmholtz basis functions in spherical coordinates:</p>
+<div class="math notranslate nohighlight">
+\[
+  R_n^m(x-c) = j_n(\kappa r)\,Y_n^m(\theta,\phi),
+  \qquad
+  S_n^m(x-c) = h_n^{(1)}(\kappa r)\,Y_n^m(\theta,\phi).
+\]</div>
+<p>Here <span class="math notranslate nohighlight">\(r=|x-c|\)</span>, <span class="math notranslate nohighlight">\(Y_n^m\)</span> are spherical harmonics, <span class="math notranslate nohighlight">\(j_n\)</span> are spherical Bessel functions, and <span class="math notranslate nohighlight">\(h_n^{(1)} = j_n + i y_n\)</span> are outgoing spherical Hankel functions.</p>
+<p>Regular expansion:</p>
+<div class="math notranslate nohighlight">
+\[
+  u_R(x) \approx \sum_{n=0}^{p-1}\sum_{m=-n}^{n}
+    a_n^m R_n^m(x-c).
+\]</div>
+<ul class="simple">
+<li><p>finite at the expansion center,</p></li>
+<li><p>used for local target expansions.</p></li>
+</ul>
+<p>Singular expansion:</p>
+<div class="math notranslate nohighlight">
+\[
+  u_S(x) \approx \sum_{n=0}^{p-1}\sum_{m=-n}^{n}
+    b_n^m S_n^m(x-c).
+\]</div>
+<ul class="simple">
+<li><p>singular at the expansion center,</p></li>
+<li><p>outgoing for Helmholtz; satisfies the Sommerfeld radiation condition,</p></li>
+<li><p>used to represent the field generated by a source cluster.</p></li>
+</ul>
+</section>
+<section id="bessel-and-hankel-stability">
+<h2>Bessel and Hankel Stability<a class="headerlink" href="#bessel-and-hankel-stability" title="Link to this heading">#</a></h2>
+<p>The radial basis functions satisfy the recurrence</p>
+<div class="math notranslate nohighlight">
+\[
+  f_{n+1}(z) = \frac{2n+1}{z} f_n(z) - f_{n-1}(z).
+\]</div>
+<p>For small <span class="math notranslate nohighlight">\(|z|\)</span> and large <span class="math notranslate nohighlight">\(n\)</span>, the radial functions can have very different magnitudes and direct recurrence may overflow or underflow. NGSolve uses a stable backward recurrence, treats small arguments separately, and rescales large intermediate values.</p>
+</section>
+<section id="multilevel-fmm">
+<h2>Multilevel FMM<a class="headerlink" href="#multilevel-fmm" title="Link to this heading">#</a></h2>
+<p>Source and target points are grouped in an adaptive tree. The computation moves upward, across well separated boxes, and downward to the targets.</p>
+<p><img alt="Multilevel FMM upward and downward pass" src="../_images/fmm-mlfmm-pass.png" /></p>
+<p>A translation in an arbitrary direction is split into three simpler steps:</p>
+<ol class="arabic simple">
+<li><p>rotate the coordinate system so the translation direction becomes the <span class="math notranslate nohighlight">\(z\)</span> axis,</p></li>
+<li><p>translate along the <span class="math notranslate nohighlight">\(z\)</span> axis,</p></li>
+<li><p>rotate back.</p></li>
+</ol>
+<p>As a matrix product, this can be written in the form</p>
+<div class="math notranslate nohighlight">
+\[
+  T(\ell,\theta,\phi)
+  = D(-\phi)\,C(\ell,\theta)\,D(\phi),
+  \qquad
+  C(\ell,\theta) = Y(-\theta)\,A(\ell)\,Y(\theta).
+\]</div>
+<p>Here <span class="math notranslate nohighlight">\(A(\ell)\)</span> translates along the <span class="math notranslate nohighlight">\(z\)</span> axis, <span class="math notranslate nohighlight">\(Y\)</span> changes the polar direction, and <span class="math notranslate nohighlight">\(D(\phi)\)</span> is a cheap azimuthal phase factor. The <span class="math notranslate nohighlight">\(z\)</span> axis translation preserves <span class="math notranslate nohighlight">\(m\)</span> and therefore has block structure. Applied directly, a translation couples all <span class="math notranslate nohighlight">\(p^2\)</span> input coefficients with all <span class="math notranslate nohighlight">\(p^2\)</span> output coefficients and costs <span class="math notranslate nohighlight">\(O(p^4)\)</span>. Splitting it into rotations and a <span class="math notranslate nohighlight">\(z\)</span> axis translation reduces the cost to <span class="math notranslate nohighlight">\(O(p^3)\)</span>.</p>
+<p>For one source and target box pair, a normal translation is</p>
+<div class="math notranslate nohighlight">
+\[
+  a^{\mathrm{out}} = T(\ell,\theta,\phi)a.
+\]</div>
+<p>Here <span class="math notranslate nohighlight">\(p\)</span> is the expansion order, using degrees <span class="math notranslate nohighlight">\(n=0,\dots,p-1\)</span>, so <span class="math notranslate nohighlight">\(a \in \mathbb{C}^{p^2}\)</span> contains <span class="math notranslate nohighlight">\(p^2\)</span> coefficients.</p>
+<p>Within each translation type, the implementation groups <span class="math notranslate nohighlight">\(q\)</span> translations that share the same costly operation <span class="math notranslate nohighlight">\(C(\ell,\theta)\)</span>. The index <span class="math notranslate nohighlight">\(j=1,\dots,q\)</span> identifies one translation in the group. The rotation and shift data are constructed once and applied to all <span class="math notranslate nohighlight">\(q\)</span> multipoles; the remaining cheap direction factors are applied separately. The multipoles are packed as columns:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}
+  U =
+  \begin{bmatrix}
+    \tilde a_{0,0}^{(1)} &amp; \tilde a_{0,0}^{(2)} &amp; \cdots &amp; \tilde a_{0,0}^{(q)} \\
+    \tilde a_{1,-1}^{(1)} &amp; \tilde a_{1,-1}^{(2)} &amp; \cdots &amp; \tilde a_{1,-1}^{(q)} \\
+    \vdots &amp; \vdots &amp; &amp; \vdots \\
+    \tilde a_{p-1,p-1}^{(1)} &amp; \tilde a_{p-1,p-1}^{(2)} &amp; \cdots &amp; \tilde a_{p-1,p-1}^{(q)}
+  \end{bmatrix}
+  \in \mathbb{C}^{p^2 \times q},
+  \qquad
+  V = C(\ell,\theta) U.
+\end{split}\]</div>
+<p>Here <span class="math notranslate nohighlight">\(\tilde a_j=D(\phi_j)a_j\)</span>. Each column is one multipole and each row one coefficient <span class="math notranslate nohighlight">\((n,m)\)</span>. The same rotation and shift data are reused while all columns are processed together. Each output column then receives <span class="math notranslate nohighlight">\(D(-\phi_j)\)</span> and is added to its target.</p>
+<p>The three translation types are grouped as follows:</p>
+<ul class="simple">
+<li><p><strong><span class="math notranslate nohighlight">\(S \to S\)</span>:</strong> child singular expansions move to parent boxes; equal <span class="math notranslate nohighlight">\((\ell,\theta)\)</span> are batched.</p></li>
+<li><p><strong><span class="math notranslate nohighlight">\(S \to R\)</span>:</strong> well separated singular expansions become regular target expansions; equal <span class="math notranslate nohighlight">\((\ell,\theta)\)</span> are batched.</p></li>
+<li><p><strong><span class="math notranslate nohighlight">\(R \to R\)</span>:</strong> regular expansions move from parents to children. On each level <span class="math notranslate nohighlight">\(\ell\)</span> is fixed, so batches are grouped by <span class="math notranslate nohighlight">\(\theta\)</span>.</p></li>
+</ul>
+<p>The approximation is unchanged; batching improves reuse by processing several coefficient vectors together.</p>
+</section>
+<section id="fmm-controls">
+<h2>FMM Controls<a class="headerlink" href="#fmm-controls" title="Link to this heading">#</a></h2>
+<p>FMM can be enabled or disabled per boundary integral operator.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">A_fmm</span> <span class="o">=</span> <span class="n">LaplaceSL</span><span class="p">(</span><span class="n">u</span> <span class="o">*</span> <span class="n">ds</span><span class="p">,</span> <span class="n">use_fmm</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">*</span> <span class="n">v</span> <span class="o">*</span> <span class="n">ds</span>
+<span class="n">A_direct</span> <span class="o">=</span> <span class="n">LaplaceSL</span><span class="p">(</span><span class="n">u</span> <span class="o">*</span> <span class="n">ds</span><span class="p">,</span> <span class="n">use_fmm</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">*</span> <span class="n">v</span> <span class="o">*</span> <span class="n">ds</span>
+</pre></div>
+</div>
+<p>FMM parameters are exposed as keyword arguments:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">A</span> <span class="o">=</span> <span class="n">HelmholtzSL</span><span class="p">(</span>
+    <span class="n">u</span> <span class="o">*</span> <span class="n">ds</span><span class="p">,</span>
+    <span class="n">kappa</span><span class="p">,</span>
+    <span class="n">fmm_maxdirect</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+    <span class="n">fmm_minorder</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+    <span class="n">fmm_order_factor</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+    <span class="n">fmm_separation</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+    <span class="n">fmm_eval_separation</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">*</span> <span class="n">v</span> <span class="o">*</span> <span class="n">ds</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">GetFMMInfo()</span></code> returns tree and operator data for the generated FMM matrix action.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">info</span> <span class="o">=</span> <span class="n">A_fmm</span><span class="o">.</span><span class="n">GetFMMInfo</span><span class="p">()</span>
+
+<span class="n">info</span><span class="p">[</span><span class="s2">&quot;kernel_name&quot;</span><span class="p">]</span>
+<span class="n">info</span><span class="p">[</span><span class="s2">&quot;source_size&quot;</span><span class="p">],</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;target_size&quot;</span><span class="p">]</span>
+<span class="n">info</span><span class="p">[</span><span class="s2">&quot;nearfield_fraction&quot;</span><span class="p">]</span>
+<span class="n">info</span><span class="p">[</span><span class="s2">&quot;multipole_memory_mb&quot;</span><span class="p">]</span>
+<span class="n">info</span><span class="p">[</span><span class="s2">&quot;source&quot;</span><span class="p">][</span><span class="s2">&quot;depth&quot;</span><span class="p">],</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;target&quot;</span><span class="p">][</span><span class="s2">&quot;depth&quot;</span><span class="p">]</span>
+<span class="n">info</span><span class="p">[</span><span class="s2">&quot;source&quot;</span><span class="p">][</span><span class="s2">&quot;order_min&quot;</span><span class="p">],</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;source&quot;</span><span class="p">][</span><span class="s2">&quot;order_max&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./bem"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="01_intro.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Boundary Element Methods</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="python_api.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Python API</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#where-fmm-enters-bem">Where FMM Enters BEM</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#near-field-and-far-field">Near Field and Far Field</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#regular-and-singular-expansions">Regular and Singular Expansions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bessel-and-hankel-stability">Bessel and Hankel Stability</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#multilevel-fmm">Multilevel FMM</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fmm-controls">FMM Controls</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By R. Dorigo
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2026.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

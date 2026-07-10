@@ -1,0 +1,716 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Python API &#8212; Boundary Element Methods in NGSolve</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=3c74b3bc" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=9c3e77be" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css?v=8cd3d715" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../_static/togglebutton.js?v=b8b12719"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'bem/python_api';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Nearfield Potential Evaluation" href="nearfield_potential.html" />
+    <link rel="prev" title="Fast Multipole Acceleration" href="fmm.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/NGSlogo.png" class="logo__image only-light" alt="Boundary Element Methods in NGSolve - Home"/>
+    <img src="../_static/NGSlogo.png" class="logo__image only-dark pst-js-only" alt="Boundary Element Methods in NGSolve - Home"/>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../index.html">
+                    Boundary Element Methods in NGSolve
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Theory and Implementation</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="01_intro.html">Boundary Element Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fmm.html">Fast Multipole Acceleration</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nearfield_potential.html">Nearfield Potential Evaluation</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="laplace_capacitor.html">Laplace Plate Capacitor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="poisson.html">Poisson Equation BEM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maxwell_stabilized.html">Maxwell Stabilized</a></li>
+<li class="toctree-l1"><a class="reference internal" href="brakhage_werner.html">Scattering Problem</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">References</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../references.html">Bibliography</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-launch-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Launch interactive content">
+    <i class="fas fa-rocket"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://colab.research.google.com/github/erdieee/ngs26/blob/main/bem/python_api.ipynb" target="_blank"
+   class="btn btn-sm dropdown-item"
+   title="Launch on Colab"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  
+    <img alt="Colab logo" src="../_static/images/logo_colab.png">
+  </span>
+<span class="btn__text-container">Colab</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+<a href="https://github.com/erdieee/ngs26" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/bem/python_api.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button pst-navbar-icon"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Python API</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imports">Imports</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#boundary-spaces">Boundary Spaces</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kernels-and-layer-potentials">Kernels and Layer Potentials</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#from-paper-to-code">From Paper to Code</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#laplace-operators">Laplace Operators</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#helmholtz-operators">Helmholtz Operators</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lame">Lamé</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#maxwell">Maxwell</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#potential-evaluation">Potential Evaluation</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="python-api">
+<h1>Python API<a class="headerlink" href="#python-api" title="Link to this heading">#</a></h1>
+<p>The BEM interface follows the usual NGSolve form language and mirrors the mathematical notation for boundary integral operators.</p>
+<section id="imports">
+<h2>Imports<a class="headerlink" href="#imports" title="Link to this heading">#</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">ngsolve</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ngsolve.bem</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+</pre></div>
+</div>
+</section>
+<section id="boundary-spaces">
+<h2>Boundary Spaces<a class="headerlink" href="#boundary-spaces" title="Link to this heading">#</a></h2>
+<p>Common scalar trace spaces:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">SurfaceL2</span></code>: boundary density space, used for Neumann type traces,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">H1</span></code>: volume space whose boundary trace is used for Dirichlet type traces,</p></li>
+<li><p>vector valued operators use spaces such as <code class="docutils literal notranslate"><span class="pre">VectorH1</span></code>, <code class="docutils literal notranslate"><span class="pre">HDivSurface</span></code>, and <code class="docutils literal notranslate"><span class="pre">HCurl</span></code> traces,</p></li>
+<li><p>triangular and quadrilateral surface elements are supported.</p></li>
+</ul>
+</section>
+<section id="kernels-and-layer-potentials">
+<h2>Kernels and Layer Potentials<a class="headerlink" href="#kernels-and-layer-potentials" title="Link to this heading">#</a></h2>
+<p>Laplace kernel:</p>
+<div class="math notranslate nohighlight">
+\[
+  G_0(x,y) = \frac{1}{4\pi |x-y|}.
+\]</div>
+<p>Helmholtz outgoing kernel:</p>
+<div class="math notranslate nohighlight">
+\[
+  G_\kappa(x,y) = \frac{e^{i\kappa |x-y|}}{4\pi |x-y|}.
+\]</div>
+<p>Single layer potential:</p>
+<div class="math notranslate nohighlight">
+\[
+  (V\rho)(x) = \int_\Gamma G(x,y)\,\rho(y)\,d\sigma_y.
+\]</div>
+<p>Double layer potential:</p>
+<div class="math notranslate nohighlight">
+\[
+  (K\mu)(x) = \int_\Gamma
+  \frac{\partial G(x,y)}{\partial n_y}\,\mu(y)\,d\sigma_y.
+\]</div>
+<p>This is the naming convention behind <code class="docutils literal notranslate"><span class="pre">LaplaceSL</span></code>, <code class="docutils literal notranslate"><span class="pre">LaplaceDL</span></code>, <code class="docutils literal notranslate"><span class="pre">HelmholtzSL</span></code>, and <code class="docutils literal notranslate"><span class="pre">HelmholtzDL</span></code>.</p>
+</section>
+<section id="from-paper-to-code">
+<h2>From Paper to Code<a class="headerlink" href="#from-paper-to-code" title="Link to this heading">#</a></h2>
+<p>A single layer bilinear form</p>
+<div class="math notranslate nohighlight">
+\[
+  \langle V\rho_h, \eta_h \rangle_\Gamma
+  = \int_\Gamma 
+  \underbrace{\left( \int_\Gamma
+      \,G_\kappa(x,y)\,\varphi_j(y)
+    \,d\sigma_y \right) }_{\displaystyle{LaplaceSL(u*ds)}} 
+    \eta_i(x) \,d\sigma_x.
+\]</div>
+<p>is written as</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">V</span> <span class="o">=</span> <span class="n">LaplaceSL</span><span class="p">(</span><span class="n">u</span> <span class="o">*</span> <span class="n">ds</span><span class="p">)</span> <span class="o">*</span> <span class="n">v</span> <span class="o">*</span> <span class="n">ds</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">u</span> <span class="pre">*</span> <span class="pre">ds</span></code> marks the source density on the boundary, <code class="docutils literal notranslate"><span class="pre">LaplaceSL(...)</span></code> applies the layer potential, and multiplication by <code class="docutils literal notranslate"><span class="pre">v</span> <span class="pre">*</span> <span class="pre">ds</span></code> tests the result on the boundary.</p>
+</section>
+<section id="laplace-operators">
+<h2>Laplace Operators<a class="headerlink" href="#laplace-operators" title="Link to this heading">#</a></h2>
+<p>Single layer operator:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">V</span> <span class="o">=</span> <span class="n">LaplaceSL</span><span class="p">(</span><span class="n">u</span> <span class="o">*</span> <span class="n">ds</span><span class="p">)</span> <span class="o">*</span> <span class="n">v</span> <span class="o">*</span> <span class="n">ds</span>
+</pre></div>
+</div>
+<p>Double layer operator:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">K</span> <span class="o">=</span> <span class="n">LaplaceDL</span><span class="p">(</span><span class="n">u_h1</span> <span class="o">*</span> <span class="n">ds</span><span class="p">)</span> <span class="o">*</span> <span class="n">v</span> <span class="o">*</span> <span class="n">ds</span>
+</pre></div>
+</div>
+</section>
+<section id="helmholtz-operators">
+<h2>Helmholtz Operators<a class="headerlink" href="#helmholtz-operators" title="Link to this heading">#</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">kappa</span> <span class="o">=</span> <span class="mf">4.0</span>
+
+<span class="n">V</span> <span class="o">=</span> <span class="n">HelmholtzSL</span><span class="p">(</span><span class="n">u</span> <span class="o">*</span> <span class="n">ds</span><span class="p">,</span> <span class="n">kappa</span><span class="p">)</span> <span class="o">*</span> <span class="n">v</span> <span class="o">*</span> <span class="n">ds</span>
+<span class="n">K</span> <span class="o">=</span> <span class="n">HelmholtzDL</span><span class="p">(</span><span class="n">u</span> <span class="o">*</span> <span class="n">ds</span><span class="p">,</span> <span class="n">kappa</span><span class="p">)</span> <span class="o">*</span> <span class="n">v</span> <span class="o">*</span> <span class="n">ds</span>
+<span class="n">C</span> <span class="o">=</span> <span class="n">HelmholtzCF</span><span class="p">(</span><span class="n">u</span> <span class="o">*</span> <span class="n">ds</span><span class="p">,</span> <span class="n">kappa</span><span class="p">)</span> <span class="o">*</span> <span class="n">v</span> <span class="o">*</span> <span class="n">ds</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">HelmholtzSL</span></code>: single layer operator,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HelmholtzDL</span></code>: double layer operator,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HelmholtzCF</span></code>: combined field operator for formulations such as Brakhage Werner.</p></li>
+</ul>
+</section>
+<section id="lame">
+<h2>Lamé<a class="headerlink" href="#lame" title="Link to this heading">#</a></h2>
+<p>Lamé single layer potential:</p>
+<div class="math notranslate nohighlight">
+\[
+  (V_{E,\nu}\mathbf t)(x)
+  = \int_\Gamma \mathbf U_{E,\nu}(x,y)\,\mathbf t(y)\,d\sigma_y,
+\]</div>
+<div class="math notranslate nohighlight">
+\[
+  \mathbf U_{E,\nu}(x,y)
+  = \frac{1+\nu}{8\pi E(1-\nu)|x-y|}
+  \left((3-4\nu)I + \frac{(x-y)(x-y)^T}{|x-y|^2}\right).
+\]</div>
+<p>The matching NGSolve expression is the same single layer pattern, but with a vector valued density:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">fes</span> <span class="o">=</span> <span class="n">VectorH1</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="n">order</span><span class="p">)</span>
+<span class="n">u</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">fes</span><span class="o">.</span><span class="n">TnT</span><span class="p">()</span>
+
+<span class="n">L</span> <span class="o">=</span> <span class="n">LameSL</span><span class="p">(</span><span class="n">u</span> <span class="o">*</span> <span class="n">ds</span><span class="p">,</span> <span class="n">E</span><span class="o">=</span><span class="n">E</span><span class="p">,</span> <span class="n">nu</span><span class="o">=</span><span class="n">nu</span><span class="p">)</span> <span class="o">*</span> <span class="n">v</span> <span class="o">*</span> <span class="n">ds</span>
+</pre></div>
+</div>
+</section>
+<section id="maxwell">
+<h2>Maxwell<a class="headerlink" href="#maxwell" title="Link to this heading">#</a></h2>
+<p>The NGSolve syntax builds Maxwell blocks from <code class="docutils literal notranslate"><span class="pre">HDivSurface</span></code> and <code class="docutils literal notranslate"><span class="pre">HCurl</span></code> traces.
+Maxwell layer potentials use the outgoing Helmholtz kernel explicitly. The Maxwell single layer reads as</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}
+\begin{aligned}
+  V(\mathbf j)(x)
+  &amp;= \kappa \int_\Gamma \frac{1}{4\pi}\frac{e^{i\kappa\|x-y\|}}{\|x-y\|}\,
+  \mathbf j(y)\,d\sigma_y
+  + \frac1\kappa \nabla_x \int_\Gamma
+  \frac{1}{4\pi}\frac{e^{i\kappa\|x-y\|}}{\|x-y\|}\,
+  \operatorname{div}_\Gamma \mathbf j(y)\,d\sigma_y,\\
+  \langle Vj,\rho \rangle &amp;= \kappa \int_\Gamma \int_\Gamma \frac{1}{4\pi}\frac{e^{i\kappa\|x-y\|}}{\|x-y\|}\,
+  \mathbf j(y)\,d\sigma_y \ d\sigma_x
+  - \frac1\kappa \int_\Gamma \int_\Gamma
+  \frac{1}{4\pi}\frac{e^{i\kappa\|x-y\|}}{\|x-y\|}\,
+  \operatorname{div}_\Gamma \mathbf j(y)\,
+  \operatorname{div}_\Gamma \mathbf \rho(x)\,d\sigma_y \,d\sigma_x,\\
+\end{aligned}
+\end{split}\]</div>
+<p>Single layer potential:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">SL</span> <span class="o">=</span> <span class="n">kappa</span> <span class="o">*</span> <span class="n">HelmholtzSL</span><span class="p">(</span><span class="n">uHDiv</span><span class="o">.</span><span class="n">Trace</span><span class="p">()</span><span class="o">*</span><span class="n">ds</span><span class="p">,</span> <span class="n">kappa</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="o">/</span> <span class="n">kappa</span> <span class="o">*</span> <span class="n">grad</span><span class="p">(</span><span class="n">HelmholtzSL</span><span class="p">(</span><span class="n">div</span><span class="p">(</span><span class="n">uHDiv</span><span class="o">.</span><span class="n">Trace</span><span class="p">())</span><span class="o">*</span><span class="n">ds</span><span class="p">,</span> <span class="n">kappa</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Single layer operator matrix:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">V1</span> <span class="o">=</span> <span class="n">HelmholtzSL</span><span class="p">(</span> <span class="n">uHDiv</span><span class="o">.</span><span class="n">Trace</span><span class="p">()</span><span class="o">*</span><span class="n">ds</span><span class="p">,</span> <span class="n">kappa</span><span class="p">)</span> <span class="o">*</span> <span class="n">vHDiv</span><span class="o">.</span><span class="n">Trace</span><span class="p">()</span> <span class="o">*</span> <span class="n">ds</span>
+<span class="n">V2</span> <span class="o">=</span> <span class="n">HelmholtzSL</span><span class="p">(</span> <span class="n">div</span><span class="p">(</span><span class="n">uHDiv</span><span class="o">.</span><span class="n">Trace</span><span class="p">())</span> <span class="o">*</span> <span class="n">ds</span><span class="p">,</span> <span class="n">kappa</span><span class="p">)</span> <span class="o">*</span> <span class="n">div</span><span class="p">(</span><span class="n">vHDiv</span><span class="o">.</span><span class="n">Trace</span><span class="p">())</span> <span class="o">*</span> <span class="n">ds</span>
+<span class="n">V</span> <span class="o">=</span> <span class="n">kappa</span> <span class="o">*</span> <span class="n">V1</span><span class="o">.</span><span class="n">mat</span> <span class="o">-</span> <span class="mi">1</span><span class="o">/</span><span class="n">kappa</span> <span class="o">*</span> <span class="n">V2</span><span class="o">.</span><span class="n">mat</span>
+</pre></div>
+</div>
+<p>The double layer potential and weak form reads as</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}
+\begin{aligned}
+  K(n\times\mathbf m)(x)
+  &amp;= \nabla_x\times\int_\Gamma
+  \frac{1}{4\pi}\frac{e^{i\kappa\|x-y\|}}{\|x-y\|}\,
+  \big(n(y)\times\mathbf m(y)\big)\,d\sigma_y, \\
+  \langle K(n\times\mathbf m)(x), \psi \rangle
+  &amp;= \int_\Gamma \int_\Gamma
+  \nabla_x\times \frac{1}{4\pi}\frac{e^{i\kappa\|x-y\|}}{\|x-y\|}\,
+  \big(n(y)\times\mathbf m(y)\big)\, \mathbf \psi(x)\, d\sigma_y \,d\sigma_x.
+\end{aligned}
+\end{split}\]</div>
+<p>Double layer potential:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">DL</span> <span class="o">=</span> <span class="n">MaxwellDL</span><span class="p">(</span><span class="n">Cross</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">Trace</span><span class="p">())</span> <span class="o">*</span> <span class="n">ds</span><span class="p">,</span> <span class="n">kappa</span><span class="p">)</span>
+<span class="c1"># or</span>
+<span class="n">DL</span> <span class="o">=</span> <span class="n">curl</span><span class="p">(</span><span class="n">HelmholtzSL</span><span class="p">(</span><span class="n">Cross</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">m</span><span class="o">.</span><span class="n">Trace</span><span class="p">())</span> <span class="o">*</span> <span class="n">ds</span><span class="p">,</span> <span class="n">kappa</span><span class="p">))</span> 
+</pre></div>
+</div>
+<p>Double layer operator:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">K</span> <span class="o">=</span> <span class="n">MaxwellDL</span><span class="p">(</span><span class="n">Cross</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">Trace</span><span class="p">())</span> <span class="o">*</span> <span class="n">ds</span><span class="p">,</span> <span class="n">kappa</span><span class="p">)</span> <span class="o">*</span> <span class="n">w</span><span class="o">.</span><span class="n">Trace</span><span class="p">()</span> <span class="o">*</span> <span class="n">ds</span>
+</pre></div>
+</div>
+<p>Available building blocks: <code class="docutils literal notranslate"><span class="pre">LaplaceSL</span></code>, <code class="docutils literal notranslate"><span class="pre">LaplaceDL</span></code>, <code class="docutils literal notranslate"><span class="pre">HelmholtzSL</span></code>, <code class="docutils literal notranslate"><span class="pre">HelmholtzDL</span></code>, <code class="docutils literal notranslate"><span class="pre">HelmholtzCF</span></code>, <code class="docutils literal notranslate"><span class="pre">LameSL</span></code>, and <code class="docutils literal notranslate"><span class="pre">MaxwellDL</span></code>.</p>
+</section>
+<section id="potential-evaluation">
+<h2>Potential Evaluation<a class="headerlink" href="#potential-evaluation" title="Link to this heading">#</a></h2>
+<p>A potential operator can be evaluated from a grid function density:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">SL</span> <span class="o">=</span> <span class="n">LaplaceSL</span><span class="p">(</span><span class="n">u</span> <span class="o">*</span> <span class="n">ds</span><span class="p">)</span>
+<span class="n">potential</span> <span class="o">=</span> <span class="n">SL</span><span class="p">(</span><span class="n">gfu</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Evaluation on a target boundary region can use a local expansion (FMM evaluation):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">potential_on_screen</span> <span class="o">=</span> <span class="n">SL</span><span class="p">(</span><span class="n">gfu</span><span class="p">,</span> <span class="n">target_boundary</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Differentiated potentials use the operator interface:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">grad_potential</span> <span class="o">=</span> <span class="n">grad</span><span class="p">(</span><span class="n">SL</span><span class="p">)(</span><span class="n">gfu</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./bem"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="fmm.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Fast Multipole Acceleration</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="nearfield_potential.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Nearfield Potential Evaluation</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imports">Imports</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#boundary-spaces">Boundary Spaces</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kernels-and-layer-potentials">Kernels and Layer Potentials</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#from-paper-to-code">From Paper to Code</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#laplace-operators">Laplace Operators</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#helmholtz-operators">Helmholtz Operators</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lame">Lamé</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#maxwell">Maxwell</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#potential-evaluation">Potential Evaluation</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By R. Dorigo
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2026.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
