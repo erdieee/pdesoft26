@@ -378,8 +378,10 @@
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#solution-representation">Solution Representation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#advantages-and-challenges">Advantages and Challenges</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#from-pde-to-boundary-integral-equation">From PDE to Boundary Integral Equation</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#boundary-discretization">Boundary Discretization</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-fast-algorithms-are-needed">Why Fast Algorithms Are Needed</a></li>
 </ul>
             </nav>
         </div>
@@ -393,52 +395,48 @@
                   
   <section class="tex2jax_ignore mathjax_ignore" id="boundary-element-methods">
 <h1>Boundary Element Methods<a class="headerlink" href="#boundary-element-methods" title="Link to this heading">#</a></h1>
-<p>Boundary element methods solve boundary value problems by representing the solution with layer potentials on the boundary.</p>
-<p>Typical model problems:</p>
-<ul class="simple">
-<li><p>Laplace,</p></li>
-<li><p>Helmholtz,</p></li>
-<li><p>Maxwell,</p></li>
-<li><p>elasticity / Lamé.</p></li>
-</ul>
-<p>Main tradeoff:</p>
+<p>Boundary element methods reformulate boundary value problems as integral equations on the boundary. The unknown is a boundary density, and the solution in the domain is recovered from a layer potential.</p>
+<section id="advantages-and-challenges">
+<h2>Advantages and Challenges<a class="headerlink" href="#advantages-and-challenges" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
-<tr class="row-odd"><th class="head"><p>Pro</p></th>
-<th class="head"><p>Contra</p></th>
+<tr class="row-odd"><th class="head"><p>Advantages</p></th>
+<th class="head"><p>Challenges</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>unknowns live only on the boundary</p></td>
-<td><p>integral kernels are singular</p></td>
+<tr class="row-even"><td><p>only the boundary is meshed</p></td>
+<td><p>system matrices are dense</p></td>
 </tr>
-<tr class="row-odd"><td><p>exterior domains are handled naturally by the fundamental solution</p></td>
-<td><p>discrete operators are dense</p></td>
+<tr class="row-odd"><td><p>exterior domains need no artificial boundary</p></td>
+<td><p>singular integrals need special quadrature</p></td>
 </tr>
-<tr class="row-even"><td><p>solution can be evaluated anywhere from the layer potential</p></td>
-<td><p>volume source terms need additional potentials</p></td>
+<tr class="row-even"><td><p>the solution can be evaluated throughout the domain</p></td>
+<td><p>a fundamental solution must be known</p></td>
 </tr>
 </tbody>
 </table>
 </div>
-<section id="solution-representation">
-<h2>Solution Representation<a class="headerlink" href="#solution-representation" title="Link to this heading">#</a></h2>
-<p>Model Helmholtz problem:</p>
+</section>
+<section id="from-pde-to-boundary-integral-equation">
+<h2>From PDE to Boundary Integral Equation<a class="headerlink" href="#from-pde-to-boundary-integral-equation" title="Link to this heading">#</a></h2>
+<p>Let <span class="math notranslate nohighlight">\(\Omega\)</span> be the domain and <span class="math notranslate nohighlight">\(\Gamma=\partial\Omega\)</span> its boundary. Consider the Helmholtz problem</p>
 <div class="math notranslate nohighlight">
 \[
   \Delta u + \kappa^2 u = 0 \quad \text{in } \Omega,
   \qquad
   u = g \quad \text{on } \Gamma,
 \]</div>
-<p>BEM represents the solution by a layer potential with an unknown boundary density. For the single layer ansatz in the domain,</p>
+<p>For a single layer representation, the solution is</p>
 <div class="math notranslate nohighlight">
 \[
   u(x) = (\widetilde V\rho)(x)
   = \int_\Gamma G_\kappa(x,y)\,\rho(y)\,d\sigma_y,
   \qquad
-  x \notin \Gamma, \qquad G_\kappa(x,y) = \frac{e^{i\kappa |x-y|}}{4 \pi |x-y|}
+  x \in \Omega, \qquad G_\kappa(x,y) = \frac{e^{i\kappa |x-y|}}{4 \pi |x-y|}.
 \]</div>
-<p>Taking the boundary trace gives the boundary integral equation for the density</p>
+<p>Here <span class="math notranslate nohighlight">\(y\)</span> is a source point on <span class="math notranslate nohighlight">\(\Gamma\)</span>, <span class="math notranslate nohighlight">\(x\)</span> is the evaluation point, <span class="math notranslate nohighlight">\(G_\kappa\)</span> is the fundamental solution, and <span class="math notranslate nohighlight">\(\rho\)</span> is the unknown boundary density. The symbol <span class="math notranslate nohighlight">\(\widetilde V\)</span> denotes the potential in the domain.</p>
+<p>Taking its trace on <span class="math notranslate nohighlight">\(\Gamma\)</span> gives the boundary operator <span class="math notranslate nohighlight">\(V\)</span> and the equation for the density:</p>
 <div class="math notranslate nohighlight">
 \[
   V\rho = g \quad \text{on } \Gamma.
@@ -446,17 +444,12 @@
 </section>
 <section id="boundary-discretization">
 <h2>Boundary Discretization<a class="headerlink" href="#boundary-discretization" title="Link to this heading">#</a></h2>
-<p>For the single layer ansatz, the boundary integral equation is</p>
+<p>Choose a finite dimensional boundary space and approximate the density by</p>
 <div class="math notranslate nohighlight">
 \[
-  V\rho = g \quad \text{on } \Gamma,
-  \qquad
-  (\widetilde V\rho)(x) = \int_\Gamma G_\kappa(x,y)\,\rho(y)\,d\sigma_y.
-\]</div>
-<p>Choose a finite dimensional boundary space</p>
-<div class="math notranslate nohighlight">
-\[
-  X_h = \operatorname{span}\{\varphi_1,\dots,\varphi_N\}.
+X_h = \operatorname{span}\{\varphi_1,\dots,\varphi_N\},
+\qquad
+\rho_h = \sum_{j=1}^N c_j\varphi_j.
 \]</div>
 <p>The Galerkin variational formulation is: find <span class="math notranslate nohighlight">\(\rho_h \in X_h\)</span> such that</p>
 <div class="math notranslate nohighlight">
@@ -465,18 +458,30 @@
   = \langle g, \eta_h \rangle_\Gamma
   \qquad \forall\,\eta_h \in X_h,
 \]</div>
-<p>with system matrix</p>
+<p>Choosing <span class="math notranslate nohighlight">\(\eta_h=\varphi_i\)</span> gives the linear system</p>
 <div class="math notranslate nohighlight">
 \[
-  A_{ij}
-  = \langle V\varphi_j, \eta_i \rangle_\Gamma
-  = \int_\Gamma \int_\Gamma
-      \eta_i(x)\,G_\kappa(x,y)\,\varphi_j(y)
-    \,d\sigma_y\,d\sigma_x.
+\sum_{j=1}^N A_{ij}c_j=b_i,
+\qquad A\mathbf c=\mathbf b,
 \]</div>
-<p>A matrix vector product contains a potential evaluation: density values on source quadrature points are passed through the kernel <span class="math notranslate nohighlight">\(G_\kappa(x,y)\)</span> and accumulated at target quadrature points.</p>
-<p>This is the computational bottleneck: far away boundary elements still interact through the Green’s function, so the discrete operator is dense.</p>
-<p>FMM keeps near interactions direct and replaces far interactions by compressed Green’s function expansions.</p>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[
+A_{ij}=\int_\Gamma\int_\Gamma
+\varphi_i(x)G_\kappa(x,y)\varphi_j(y)
+\,d\sigma_y\,d\sigma_x,
+\qquad
+b_i=\int_\Gamma g(x)\varphi_i(x)\,d\sigma_x.
+\]</div>
+</section>
+<section id="why-fast-algorithms-are-needed">
+<h2>Why Fast Algorithms Are Needed<a class="headerlink" href="#why-fast-algorithms-are-needed" title="Link to this heading">#</a></h2>
+<p>Every boundary basis function interacts with every other one through <span class="math notranslate nohighlight">\(G_\kappa(x,y)\)</span>. Therefore, <span class="math notranslate nohighlight">\(A\)</span> is dense:</p>
+<ul class="simple">
+<li><p>storing the matrix costs <span class="math notranslate nohighlight">\(O(N^2)\)</span>,</p></li>
+<li><p>a direct matrix vector product costs <span class="math notranslate nohighlight">\(O(N^2)\)</span>.</p></li>
+</ul>
+<p>The fast multipole method keeps nearby interactions direct and groups distant interactions through expansions. This avoids forming the full dense matrix and accelerates its application.</p>
 </section>
 </section>
 
@@ -546,8 +551,10 @@
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#solution-representation">Solution Representation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#advantages-and-challenges">Advantages and Challenges</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#from-pde-to-boundary-integral-equation">From PDE to Boundary Integral Equation</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#boundary-discretization">Boundary Discretization</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-fast-algorithms-are-needed">Why Fast Algorithms Are Needed</a></li>
 </ul>
   </nav></div>
 
