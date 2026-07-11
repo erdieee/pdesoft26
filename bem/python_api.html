@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Python API &#8212; Boundary Element Methods in NGSolve</title>
+    <title>BEM Python API &#8212; Boundary Element Methods in NGSolve</title>
   
   
   
@@ -65,7 +65,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'bem/python_api';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Nearfield Potential Evaluation" href="nearfield_potential.html" />
+    <link rel="next" title="Near Field Potential Evaluation" href="nearfield_potential.html" />
     <link rel="prev" title="Fast Multipole Acceleration" href="fmm.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -174,8 +174,8 @@
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="01_intro.html">Boundary Element Methods</a></li>
 <li class="toctree-l1"><a class="reference internal" href="fmm.html">Fast Multipole Acceleration</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">Python API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="nearfield_potential.html">Nearfield Potential Evaluation</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">BEM Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nearfield_potential.html">Near Field Potential Evaluation</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Examples</span></p>
 <ul class="nav bd-sidenav">
@@ -368,7 +368,7 @@
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>Python API</h1>
+    <h1>BEM Python API</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -378,15 +378,14 @@
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imports">Imports</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#boundary-spaces">Boundary Spaces</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kernels-and-layer-potentials">Kernels and Layer Potentials</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#from-paper-to-code">From Paper to Code</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#laplace-operators">Laplace Operators</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#helmholtz-operators">Helmholtz Operators</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lame">Lamé</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#maxwell">Maxwell</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#potential-evaluation">Potential Evaluation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#implemented-capabilities">Implemented Capabilities</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#helmholtz-single-layer-potential">Helmholtz Single Layer Potential</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#from-potential-to-galerkin-operator">From Potential to Galerkin Operator</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#boundaries-and-fmm-controls">Boundaries and FMM Controls</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#right-hand-side-and-solve">Right Hand Side and Solve</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#evaluate-the-potential">Evaluate the Potential</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#vector-valued-operators">Vector Valued Operators</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#other-kernels-same-pattern">Other Kernels, Same Pattern</a></li>
 </ul>
             </nav>
         </div>
@@ -398,189 +397,174 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="python-api">
-<h1>Python API<a class="headerlink" href="#python-api" title="Link to this heading">#</a></h1>
-<p>The BEM interface follows the usual NGSolve form language and mirrors the mathematical notation for boundary integral operators.</p>
-<section id="imports">
-<h2>Imports<a class="headerlink" href="#imports" title="Link to this heading">#</a></h2>
+  <section class="tex2jax_ignore mathjax_ignore" id="bem-python-api">
+<h1>BEM Python API<a class="headerlink" href="#bem-python-api" title="Link to this heading">#</a></h1>
+<p>The NGSolve BEM interface follows the same source, kernel, and test structure as the Galerkin formulation. The Helmholtz example below first maps the paper notation to code and then shows the main API controls.</p>
+<section id="implemented-capabilities">
+<h2>Implemented Capabilities<a class="headerlink" href="#implemented-capabilities" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Laplace, Helmholtz, Lame and Maxwell operators,</p></li>
+<li><p>real or complex densities, scalar or vector valued, and real or complex wavenumbers,</p></li>
+<li><p>triangular, quadrilateral and curved surface elements,</p></li>
+<li><p>direct or FMM evaluation on full or selected boundaries.</p></li>
+</ul>
+</section>
+<section id="helmholtz-single-layer-potential">
+<h2>Helmholtz Single Layer Potential<a class="headerlink" href="#helmholtz-single-layer-potential" title="Link to this heading">#</a></h2>
+<p>For an existing surface mesh, the discrete space and symbolic trial and test functions are</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">ngsolve</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">ngsolve.bem</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">fes</span> <span class="o">=</span> <span class="n">SurfaceL2</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="n">order</span><span class="p">,</span> <span class="nb">complex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">rho</span><span class="p">,</span> <span class="n">eta</span> <span class="o">=</span> <span class="n">fes</span><span class="o">.</span><span class="n">TnT</span><span class="p">()</span>
+<span class="n">kappa</span> <span class="o">=</span> <span class="mf">4.0</span>
+</pre></div>
+</div>
+<p>The single layer potential maps the density <span class="math notranslate nohighlight">\(\rho_h\)</span> to</p>
+<div class="math notranslate nohighlight">
+\[
+(\widetilde V\rho_h)(x)
+=\int_\Gamma G_\kappa(x,y)\rho_h(y)\,d\sigma_y.
+\]</div>
+<p>This source integral is constructed by</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">SL</span> <span class="o">=</span> <span class="n">HelmholtzSL</span><span class="p">(</span><span class="n">rho</span> <span class="o">*</span> <span class="n">ds</span><span class="p">,</span> <span class="n">kappa</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
-<section id="boundary-spaces">
-<h2>Boundary Spaces<a class="headerlink" href="#boundary-spaces" title="Link to this heading">#</a></h2>
-<p>Common scalar trace spaces:</p>
+<section id="from-potential-to-galerkin-operator">
+<h2>From Potential to Galerkin Operator<a class="headerlink" href="#from-potential-to-galerkin-operator" title="Link to this heading">#</a></h2>
+<p>Testing the potential on the boundary gives the variational problem: find <span class="math notranslate nohighlight">\(\rho_h \in X_h\)</span> such that, for all <span class="math notranslate nohighlight">\(\eta_h \in X_h\)</span>,</p>
+<div class="math notranslate nohighlight">
+\[
+\langle V\rho_h,\eta_h\rangle_\Gamma
+=\int_\Gamma \eta_h(x)(\widetilde V\rho_h)(x)\,d\sigma_x
+=\int_\Gamma\int_\Gamma
+\eta_h(x)G_\kappa(x,y)\rho_h(y)
+\,d\sigma_y\,d\sigma_x
+=\langle g,\eta_h\rangle_\Gamma.
+\]</div>
+<p>Multiplication by the test function and boundary measure performs the same step in code:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">V</span> <span class="o">=</span> <span class="n">SL</span> <span class="o">*</span> <span class="n">eta</span> <span class="o">*</span> <span class="n">ds</span>
+<span class="n">A</span> <span class="o">=</span> <span class="n">V</span><span class="o">.</span><span class="n">mat</span>
+</pre></div>
+</div>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Paper</p></th>
+<th class="head"><p>NGSolve</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(X_h\)</span></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">SurfaceL2(...)</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(\rho_h,\eta_h\)</span></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">rho,</span> <span class="pre">eta</span> <span class="pre">=</span> <span class="pre">fes.TnT()</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(G_\kappa\)</span> and the source integral</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">HelmholtzSL(rho</span> <span class="pre">*</span> <span class="pre">ds,</span> <span class="pre">kappa)</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>testing with <span class="math notranslate nohighlight">\(\eta_h\)</span></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">*</span> <span class="pre">eta</span> <span class="pre">*</span> <span class="pre">ds</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>Galerkin matrix action <span class="math notranslate nohighlight">\(A\)</span></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">V.mat</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Using <code class="docutils literal notranslate"><span class="pre">use_fmm=False</span></code> in <code class="docutils literal notranslate"><span class="pre">HelmholtzSL</span></code> switches to direct operator assembly for comparison.</p>
+</section>
+<section id="boundaries-and-fmm-controls">
+<h2>Boundaries and FMM Controls<a class="headerlink" href="#boundaries-and-fmm-controls" title="Link to this heading">#</a></h2>
+<p>The first boundary region contains the sources and the second contains the test functions:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">SL_region</span> <span class="o">=</span> <span class="n">HelmholtzSL</span><span class="p">(</span>
+    <span class="n">rho</span> <span class="o">*</span> <span class="n">ds</span><span class="p">(</span><span class="s2">&quot;source&quot;</span><span class="p">),</span>
+    <span class="n">kappa</span><span class="p">,</span>
+    <span class="n">use_fmm</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">fmm_minorder</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+    <span class="n">fmm_separation</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">V_region</span> <span class="o">=</span> <span class="n">SL_region</span> <span class="o">*</span> <span class="n">eta</span> <span class="o">*</span> <span class="n">ds</span><span class="p">(</span><span class="s2">&quot;target&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The names <code class="docutils literal notranslate"><span class="pre">source</span></code> and <code class="docutils literal notranslate"><span class="pre">target</span></code> refer to named mesh boundaries. Omitting the name uses the full boundary.</p>
+<p>The resulting operator provides</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">SurfaceL2</span></code>: boundary density space, used for Neumann type traces,</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">H1</span></code>: volume space whose boundary trace is used for Dirichlet type traces,</p></li>
-<li><p>vector valued operators use spaces such as <code class="docutils literal notranslate"><span class="pre">VectorH1</span></code>, <code class="docutils literal notranslate"><span class="pre">HDivSurface</span></code>, and <code class="docutils literal notranslate"><span class="pre">HCurl</span></code> traces,</p></li>
-<li><p>triangular and quadrilateral surface elements are supported.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">V_region.mat</span></code> for the matrix action,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">V_region.GetFMMInfo()</span></code> for tree and expansion statistics,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">V_region.NearFieldMatrix()</span></code> for the sparse near field correction,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">V_region.CalcSubMatrix(rows,</span> <span class="pre">cols)</span></code> for selected matrix entries.</p></li>
 </ul>
 </section>
-<section id="kernels-and-layer-potentials">
-<h2>Kernels and Layer Potentials<a class="headerlink" href="#kernels-and-layer-potentials" title="Link to this heading">#</a></h2>
-<p>Laplace kernel:</p>
-<div class="math notranslate nohighlight">
-\[
-  G_0(x,y) = \frac{1}{4\pi |x-y|}.
-\]</div>
-<p>Helmholtz outgoing kernel:</p>
-<div class="math notranslate nohighlight">
-\[
-  G_\kappa(x,y) = \frac{e^{i\kappa |x-y|}}{4\pi |x-y|}.
-\]</div>
-<p>Single layer potential:</p>
-<div class="math notranslate nohighlight">
-\[
-  (V\rho)(x) = \int_\Gamma G(x,y)\,\rho(y)\,d\sigma_y.
-\]</div>
-<p>Double layer potential:</p>
-<div class="math notranslate nohighlight">
-\[
-  (K\mu)(x) = \int_\Gamma
-  \frac{\partial G(x,y)}{\partial n_y}\,\mu(y)\,d\sigma_y.
-\]</div>
-<p>This is the naming convention behind <code class="docutils literal notranslate"><span class="pre">LaplaceSL</span></code>, <code class="docutils literal notranslate"><span class="pre">LaplaceDL</span></code>, <code class="docutils literal notranslate"><span class="pre">HelmholtzSL</span></code>, and <code class="docutils literal notranslate"><span class="pre">HelmholtzDL</span></code>.</p>
-</section>
-<section id="from-paper-to-code">
-<h2>From Paper to Code<a class="headerlink" href="#from-paper-to-code" title="Link to this heading">#</a></h2>
-<p>A single layer bilinear form</p>
-<div class="math notranslate nohighlight">
-\[
-  \langle V\rho_h, \eta_h \rangle_\Gamma
-  = \int_\Gamma 
-  \underbrace{\left( \int_\Gamma
-      \,G_\kappa(x,y)\,\varphi_j(y)
-    \,d\sigma_y \right) }_{\displaystyle{LaplaceSL(u*ds)}} 
-    \eta_i(x) \,d\sigma_x.
-\]</div>
-<p>is written as</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">V</span> <span class="o">=</span> <span class="n">LaplaceSL</span><span class="p">(</span><span class="n">u</span> <span class="o">*</span> <span class="n">ds</span><span class="p">)</span> <span class="o">*</span> <span class="n">v</span> <span class="o">*</span> <span class="n">ds</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">u</span> <span class="pre">*</span> <span class="pre">ds</span></code> marks the source density on the boundary, <code class="docutils literal notranslate"><span class="pre">LaplaceSL(...)</span></code> applies the layer potential, and multiplication by <code class="docutils literal notranslate"><span class="pre">v</span> <span class="pre">*</span> <span class="pre">ds</span></code> tests the result on the boundary.</p>
-</section>
-<section id="laplace-operators">
-<h2>Laplace Operators<a class="headerlink" href="#laplace-operators" title="Link to this heading">#</a></h2>
-<p>Single layer operator:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">V</span> <span class="o">=</span> <span class="n">LaplaceSL</span><span class="p">(</span><span class="n">u</span> <span class="o">*</span> <span class="n">ds</span><span class="p">)</span> <span class="o">*</span> <span class="n">v</span> <span class="o">*</span> <span class="n">ds</span>
-</pre></div>
-</div>
-<p>Double layer operator:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">K</span> <span class="o">=</span> <span class="n">LaplaceDL</span><span class="p">(</span><span class="n">u_h1</span> <span class="o">*</span> <span class="n">ds</span><span class="p">)</span> <span class="o">*</span> <span class="n">v</span> <span class="o">*</span> <span class="n">ds</span>
-</pre></div>
-</div>
-</section>
-<section id="helmholtz-operators">
-<h2>Helmholtz Operators<a class="headerlink" href="#helmholtz-operators" title="Link to this heading">#</a></h2>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">kappa</span> <span class="o">=</span> <span class="mf">4.0</span>
+<section id="right-hand-side-and-solve">
+<h2>Right Hand Side and Solve<a class="headerlink" href="#right-hand-side-and-solve" title="Link to this heading">#</a></h2>
+<p>The right hand side <span class="math notranslate nohighlight">\(\langle g,\eta_h\rangle_\Gamma\)</span> and the discrete density are</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">rhs</span> <span class="o">=</span> <span class="n">LinearForm</span><span class="p">(</span><span class="n">g</span> <span class="o">*</span> <span class="n">eta</span> <span class="o">*</span> <span class="n">ds</span><span class="p">)</span><span class="o">.</span><span class="n">Assemble</span><span class="p">()</span>
+<span class="n">rho_h</span> <span class="o">=</span> <span class="n">GridFunction</span><span class="p">(</span><span class="n">fes</span><span class="p">)</span>
 
-<span class="n">V</span> <span class="o">=</span> <span class="n">HelmholtzSL</span><span class="p">(</span><span class="n">u</span> <span class="o">*</span> <span class="n">ds</span><span class="p">,</span> <span class="n">kappa</span><span class="p">)</span> <span class="o">*</span> <span class="n">v</span> <span class="o">*</span> <span class="n">ds</span>
-<span class="n">K</span> <span class="o">=</span> <span class="n">HelmholtzDL</span><span class="p">(</span><span class="n">u</span> <span class="o">*</span> <span class="n">ds</span><span class="p">,</span> <span class="n">kappa</span><span class="p">)</span> <span class="o">*</span> <span class="n">v</span> <span class="o">*</span> <span class="n">ds</span>
-<span class="n">C</span> <span class="o">=</span> <span class="n">HelmholtzCF</span><span class="p">(</span><span class="n">u</span> <span class="o">*</span> <span class="n">ds</span><span class="p">,</span> <span class="n">kappa</span><span class="p">)</span> <span class="o">*</span> <span class="n">v</span> <span class="o">*</span> <span class="n">ds</span>
+<span class="k">with</span> <span class="n">TaskManager</span><span class="p">():</span>
+    <span class="n">rho_h</span><span class="o">.</span><span class="n">vec</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">solvers</span><span class="o">.</span><span class="n">GMRes</span><span class="p">(</span>
+        <span class="n">A</span><span class="o">=</span><span class="n">A</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="n">rhs</span><span class="o">.</span><span class="n">vec</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span> <span class="n">maxsteps</span><span class="o">=</span><span class="mi">200</span>
+    <span class="p">)</span>
 </pre></div>
 </div>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">HelmholtzSL</span></code>: single layer operator,</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">HelmholtzDL</span></code>: double layer operator,</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">HelmholtzCF</span></code>: combined field operator for formulations such as Brakhage Werner.</p></li>
-</ul>
 </section>
-<section id="lame">
-<h2>Lamé<a class="headerlink" href="#lame" title="Link to this heading">#</a></h2>
-<p>Lamé single layer potential:</p>
-<div class="math notranslate nohighlight">
-\[
-  (V_{E,\nu}\mathbf t)(x)
-  = \int_\Gamma \mathbf U_{E,\nu}(x,y)\,\mathbf t(y)\,d\sigma_y,
-\]</div>
-<div class="math notranslate nohighlight">
-\[
-  \mathbf U_{E,\nu}(x,y)
-  = \frac{1+\nu}{8\pi E(1-\nu)|x-y|}
-  \left((3-4\nu)I + \frac{(x-y)(x-y)^T}{|x-y|^2}\right).
-\]</div>
-<p>The matching NGSolve expression is the same single layer pattern, but with a vector valued density:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">fes</span> <span class="o">=</span> <span class="n">VectorH1</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="n">order</span><span class="p">)</span>
-<span class="n">u</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">fes</span><span class="o">.</span><span class="n">TnT</span><span class="p">()</span>
+<section id="evaluate-the-potential">
+<h2>Evaluate the Potential<a class="headerlink" href="#evaluate-the-potential" title="Link to this heading">#</a></h2>
+<p>The same potential object is applied to the computed density:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">field</span> <span class="o">=</span> <span class="n">SL</span><span class="p">(</span><span class="n">rho_h</span><span class="p">)</span>
+<span class="n">field_on_screen</span> <span class="o">=</span> <span class="n">SL</span><span class="p">(</span><span class="n">rho_h</span><span class="p">,</span> <span class="n">target_boundary</span><span class="p">)</span>
+<span class="n">grad_field</span> <span class="o">=</span> <span class="n">grad</span><span class="p">(</span><span class="n">SL</span><span class="p">)(</span><span class="n">rho_h</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The second form builds a local expansion for the target boundary region. Differentiated potentials are available when the kernel provides the corresponding operation.</p>
+</section>
+<section id="vector-valued-operators">
+<h2>Vector Valued Operators<a class="headerlink" href="#vector-valued-operators" title="Link to this heading">#</a></h2>
+<p>Vector valued kernels use the same construction pattern. For the Lame single layer operator:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">fes_vec</span> <span class="o">=</span> <span class="n">VectorH1</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="n">order</span><span class="p">)</span>
+<span class="n">t</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="n">fes_vec</span><span class="o">.</span><span class="n">TnT</span><span class="p">()</span>
 
-<span class="n">L</span> <span class="o">=</span> <span class="n">LameSL</span><span class="p">(</span><span class="n">u</span> <span class="o">*</span> <span class="n">ds</span><span class="p">,</span> <span class="n">E</span><span class="o">=</span><span class="n">E</span><span class="p">,</span> <span class="n">nu</span><span class="o">=</span><span class="n">nu</span><span class="p">)</span> <span class="o">*</span> <span class="n">v</span> <span class="o">*</span> <span class="n">ds</span>
+<span class="n">L</span> <span class="o">=</span> <span class="n">LameSL</span><span class="p">(</span><span class="n">t</span> <span class="o">*</span> <span class="n">ds</span><span class="p">,</span> <span class="n">E</span><span class="o">=</span><span class="n">E</span><span class="p">,</span> <span class="n">nu</span><span class="o">=</span><span class="n">nu</span><span class="p">)</span> <span class="o">*</span> <span class="n">s</span> <span class="o">*</span> <span class="n">ds</span>
 </pre></div>
 </div>
+<p>Maxwell operators follow the same pattern with <code class="docutils literal notranslate"><span class="pre">HDivSurface</span></code> or <code class="docutils literal notranslate"><span class="pre">HCurl</span></code> traces; the complete construction is shown in the Maxwell example.</p>
 </section>
-<section id="maxwell">
-<h2>Maxwell<a class="headerlink" href="#maxwell" title="Link to this heading">#</a></h2>
-<p>The NGSolve syntax builds Maxwell blocks from <code class="docutils literal notranslate"><span class="pre">HDivSurface</span></code> and <code class="docutils literal notranslate"><span class="pre">HCurl</span></code> traces.
-Maxwell layer potentials use the outgoing Helmholtz kernel explicitly. The Maxwell single layer reads as</p>
-<div class="math notranslate nohighlight">
-\[\begin{split}
-\begin{aligned}
-  V(\mathbf j)(x)
-  &amp;= \kappa \int_\Gamma \frac{1}{4\pi}\frac{e^{i\kappa\|x-y\|}}{\|x-y\|}\,
-  \mathbf j(y)\,d\sigma_y
-  + \frac1\kappa \nabla_x \int_\Gamma
-  \frac{1}{4\pi}\frac{e^{i\kappa\|x-y\|}}{\|x-y\|}\,
-  \operatorname{div}_\Gamma \mathbf j(y)\,d\sigma_y,\\
-  \langle Vj,\rho \rangle &amp;= \kappa \int_\Gamma \int_\Gamma \frac{1}{4\pi}\frac{e^{i\kappa\|x-y\|}}{\|x-y\|}\,
-  \mathbf j(y)\,d\sigma_y \ d\sigma_x
-  - \frac1\kappa \int_\Gamma \int_\Gamma
-  \frac{1}{4\pi}\frac{e^{i\kappa\|x-y\|}}{\|x-y\|}\,
-  \operatorname{div}_\Gamma \mathbf j(y)\,
-  \operatorname{div}_\Gamma \mathbf \rho(x)\,d\sigma_y \,d\sigma_x,\\
-\end{aligned}
-\end{split}\]</div>
-<p>Single layer potential:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">SL</span> <span class="o">=</span> <span class="n">kappa</span> <span class="o">*</span> <span class="n">HelmholtzSL</span><span class="p">(</span><span class="n">uHDiv</span><span class="o">.</span><span class="n">Trace</span><span class="p">()</span><span class="o">*</span><span class="n">ds</span><span class="p">,</span> <span class="n">kappa</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="o">/</span> <span class="n">kappa</span> <span class="o">*</span> <span class="n">grad</span><span class="p">(</span><span class="n">HelmholtzSL</span><span class="p">(</span><span class="n">div</span><span class="p">(</span><span class="n">uHDiv</span><span class="o">.</span><span class="n">Trace</span><span class="p">())</span><span class="o">*</span><span class="n">ds</span><span class="p">,</span> <span class="n">kappa</span><span class="p">))</span>
-</pre></div>
+<section id="other-kernels-same-pattern">
+<h2>Other Kernels, Same Pattern<a class="headerlink" href="#other-kernels-same-pattern" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Mathematical operator</p></th>
+<th class="head"><p>NGSolve building block</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Laplace single layer</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">LaplaceSL</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Laplace double layer</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">LaplaceDL</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>Helmholtz single layer</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">HelmholtzSL</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Helmholtz double layer</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">HelmholtzDL</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>Helmholtz combined field</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">HelmholtzCF</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Elasticity single layer</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">LameSL</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>Maxwell double layer</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">MaxwellDL</span></code></p></td>
+</tr>
+</tbody>
+</table>
 </div>
-<p>Single layer operator matrix:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">V1</span> <span class="o">=</span> <span class="n">HelmholtzSL</span><span class="p">(</span> <span class="n">uHDiv</span><span class="o">.</span><span class="n">Trace</span><span class="p">()</span><span class="o">*</span><span class="n">ds</span><span class="p">,</span> <span class="n">kappa</span><span class="p">)</span> <span class="o">*</span> <span class="n">vHDiv</span><span class="o">.</span><span class="n">Trace</span><span class="p">()</span> <span class="o">*</span> <span class="n">ds</span>
-<span class="n">V2</span> <span class="o">=</span> <span class="n">HelmholtzSL</span><span class="p">(</span> <span class="n">div</span><span class="p">(</span><span class="n">uHDiv</span><span class="o">.</span><span class="n">Trace</span><span class="p">())</span> <span class="o">*</span> <span class="n">ds</span><span class="p">,</span> <span class="n">kappa</span><span class="p">)</span> <span class="o">*</span> <span class="n">div</span><span class="p">(</span><span class="n">vHDiv</span><span class="o">.</span><span class="n">Trace</span><span class="p">())</span> <span class="o">*</span> <span class="n">ds</span>
-<span class="n">V</span> <span class="o">=</span> <span class="n">kappa</span> <span class="o">*</span> <span class="n">V1</span><span class="o">.</span><span class="n">mat</span> <span class="o">-</span> <span class="mi">1</span><span class="o">/</span><span class="n">kappa</span> <span class="o">*</span> <span class="n">V2</span><span class="o">.</span><span class="n">mat</span>
-</pre></div>
-</div>
-<p>The double layer potential and weak form reads as</p>
-<div class="math notranslate nohighlight">
-\[\begin{split}
-\begin{aligned}
-  K(n\times\mathbf m)(x)
-  &amp;= \nabla_x\times\int_\Gamma
-  \frac{1}{4\pi}\frac{e^{i\kappa\|x-y\|}}{\|x-y\|}\,
-  \big(n(y)\times\mathbf m(y)\big)\,d\sigma_y, \\
-  \langle K(n\times\mathbf m)(x), \psi \rangle
-  &amp;= \int_\Gamma \int_\Gamma
-  \nabla_x\times \frac{1}{4\pi}\frac{e^{i\kappa\|x-y\|}}{\|x-y\|}\,
-  \big(n(y)\times\mathbf m(y)\big)\, \mathbf \psi(x)\, d\sigma_y \,d\sigma_x.
-\end{aligned}
-\end{split}\]</div>
-<p>Double layer potential:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">DL</span> <span class="o">=</span> <span class="n">MaxwellDL</span><span class="p">(</span><span class="n">Cross</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">Trace</span><span class="p">())</span> <span class="o">*</span> <span class="n">ds</span><span class="p">,</span> <span class="n">kappa</span><span class="p">)</span>
-<span class="c1"># or</span>
-<span class="n">DL</span> <span class="o">=</span> <span class="n">curl</span><span class="p">(</span><span class="n">HelmholtzSL</span><span class="p">(</span><span class="n">Cross</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">m</span><span class="o">.</span><span class="n">Trace</span><span class="p">())</span> <span class="o">*</span> <span class="n">ds</span><span class="p">,</span> <span class="n">kappa</span><span class="p">))</span> 
-</pre></div>
-</div>
-<p>Double layer operator:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">K</span> <span class="o">=</span> <span class="n">MaxwellDL</span><span class="p">(</span><span class="n">Cross</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">Trace</span><span class="p">())</span> <span class="o">*</span> <span class="n">ds</span><span class="p">,</span> <span class="n">kappa</span><span class="p">)</span> <span class="o">*</span> <span class="n">w</span><span class="o">.</span><span class="n">Trace</span><span class="p">()</span> <span class="o">*</span> <span class="n">ds</span>
-</pre></div>
-</div>
-<p>Available building blocks: <code class="docutils literal notranslate"><span class="pre">LaplaceSL</span></code>, <code class="docutils literal notranslate"><span class="pre">LaplaceDL</span></code>, <code class="docutils literal notranslate"><span class="pre">HelmholtzSL</span></code>, <code class="docutils literal notranslate"><span class="pre">HelmholtzDL</span></code>, <code class="docutils literal notranslate"><span class="pre">HelmholtzCF</span></code>, <code class="docutils literal notranslate"><span class="pre">LameSL</span></code>, and <code class="docutils literal notranslate"><span class="pre">MaxwellDL</span></code>.</p>
-</section>
-<section id="potential-evaluation">
-<h2>Potential Evaluation<a class="headerlink" href="#potential-evaluation" title="Link to this heading">#</a></h2>
-<p>A potential operator can be evaluated from a grid function density:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">SL</span> <span class="o">=</span> <span class="n">LaplaceSL</span><span class="p">(</span><span class="n">u</span> <span class="o">*</span> <span class="n">ds</span><span class="p">)</span>
-<span class="n">potential</span> <span class="o">=</span> <span class="n">SL</span><span class="p">(</span><span class="n">gfu</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Evaluation on a target boundary region can use a local expansion (FMM evaluation):</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">potential_on_screen</span> <span class="o">=</span> <span class="n">SL</span><span class="p">(</span><span class="n">gfu</span><span class="p">,</span> <span class="n">target_boundary</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Differentiated potentials use the operator interface:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">grad_potential</span> <span class="o">=</span> <span class="n">grad</span><span class="p">(</span><span class="n">SL</span><span class="p">)(</span><span class="n">gfu</span><span class="p">)</span>
-</pre></div>
-</div>
+<p>Vector valued formulations use the same source and test pattern with the appropriate trace operators.</p>
 </section>
 </section>
 
@@ -628,7 +612,7 @@ Maxwell layer potentials use the outgoing Helmholtz kernel explicitly. The Maxwe
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Nearfield Potential Evaluation</p>
+        <p class="prev-next-title">Near Field Potential Evaluation</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -650,15 +634,14 @@ Maxwell layer potentials use the outgoing Helmholtz kernel explicitly. The Maxwe
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imports">Imports</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#boundary-spaces">Boundary Spaces</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kernels-and-layer-potentials">Kernels and Layer Potentials</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#from-paper-to-code">From Paper to Code</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#laplace-operators">Laplace Operators</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#helmholtz-operators">Helmholtz Operators</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lame">Lamé</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#maxwell">Maxwell</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#potential-evaluation">Potential Evaluation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#implemented-capabilities">Implemented Capabilities</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#helmholtz-single-layer-potential">Helmholtz Single Layer Potential</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#from-potential-to-galerkin-operator">From Potential to Galerkin Operator</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#boundaries-and-fmm-controls">Boundaries and FMM Controls</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#right-hand-side-and-solve">Right Hand Side and Solve</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#evaluate-the-potential">Evaluate the Potential</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#vector-valued-operators">Vector Valued Operators</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#other-kernels-same-pattern">Other Kernels, Same Pattern</a></li>
 </ul>
   </nav></div>
 

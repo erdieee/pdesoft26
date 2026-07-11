@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Nearfield Potential Evaluation &#8212; Boundary Element Methods in NGSolve</title>
+    <title>Near Field Potential Evaluation &#8212; Boundary Element Methods in NGSolve</title>
   
   
   
@@ -66,7 +66,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Laplace Plate Capacitor" href="laplace_capacitor.html" />
-    <link rel="prev" title="Python API" href="python_api.html" />
+    <link rel="prev" title="BEM Python API" href="python_api.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -174,8 +174,8 @@
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="01_intro.html">Boundary Element Methods</a></li>
 <li class="toctree-l1"><a class="reference internal" href="fmm.html">Fast Multipole Acceleration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="python_api.html">Python API</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">Nearfield Potential Evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python_api.html">BEM Python API</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Near Field Potential Evaluation</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Examples</span></p>
 <ul class="nav bd-sidenav">
@@ -368,7 +368,7 @@
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>Nearfield Potential Evaluation</h1>
+    <h1>Near Field Potential Evaluation</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -379,8 +379,8 @@
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#local-geometry">Local Geometry</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytical-correction">Analytical Correction</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#near-and-far-split">Near and Far Split</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tangent-triangle-correction">Tangent Triangle Correction</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fmm-near-field-correction">FMM Near Field Correction</a></li>
 </ul>
             </nav>
         </div>
@@ -392,18 +392,18 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="nearfield-potential-evaluation">
-<h1>Nearfield Potential Evaluation<a class="headerlink" href="#nearfield-potential-evaluation" title="Link to this heading">#</a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="near-field-potential-evaluation">
+<h1>Near Field Potential Evaluation<a class="headerlink" href="#near-field-potential-evaluation" title="Link to this heading">#</a></h1>
 <p>After computing the density on the surface, the potential</p>
 <div class="amsmath math notranslate nohighlight">
 \[\begin{align*}
-u(x)=\int_{\Gamma}G(x,y)\,\rho(y)\,dy, \qquad x \in \Omega \setminus \Gamma,
+u(x)=\int_{\Gamma}G(x,y)\,\rho(y)\,d\sigma_y, \qquad x \in \mathbb R^3 \setminus \Gamma,
 \end{align*}\]</div>
 <p>away from or close to the boundary needs to be evaluated.</p>
-<p>For target points close to the surface, the kernel is nearly singular. Fixed order quadrature and pure farfield expansions lose accuracy exactly where the visualized potential is often most interesting.</p>
+<p>Close to the surface, fixed order quadrature does not resolve the sharp kernel peak. FMM accelerates the resulting quadrature sum but cannot remove this quadrature error, so a local correction is required.</p>
 <section id="local-geometry">
 <h2>Local Geometry<a class="headerlink" href="#local-geometry" title="Link to this heading">#</a></h2>
-<p>For a close triangular source element <span class="math notranslate nohighlight">\(\phi(\widehat T)\)</span>, we project the target point onto the reference triangle and build a tangent triangle at the projected point:</p>
+<p>For a close curved triangle <span class="math notranslate nohighlight">\(T=\phi(\widehat T)\)</span>, the map <span class="math notranslate nohighlight">\(\phi\)</span> takes the reference triangle <span class="math notranslate nohighlight">\(\widehat T\)</span> to the physical element <span class="math notranslate nohighlight">\(T\)</span>. We project the target point onto the element and build a tangent triangle at the projected point:</p>
 <div class="math notranslate nohighlight">
 \[
 \widehat x_0=\operatorname*{arg\,min}_{\widehat x\in\widehat T}|x-\phi(\widehat x)|,
@@ -413,59 +413,57 @@ x_0=\phi(\widehat x_0),
 \phi_{\mathrm{lin}}(\widehat x)
 =\phi(\widehat x_0)+\phi'(\widehat x_0)(\widehat x-\widehat x_0).
 \]</div>
-<p><img alt="Nearfield geometry" src="../_images/nearfield_triangle.png" /></p>
+<p><img alt="Near field geometry" src="../_images/nearfield_triangle.png" /></p>
 </section>
-<section id="analytical-correction">
-<h2>Analytical Correction<a class="headerlink" href="#analytical-correction" title="Link to this heading">#</a></h2>
-<p>The singular correction is computed on <span class="math notranslate nohighlight">\(\phi_{\mathrm{lin}}(\widehat T)\)</span>.
-Pulling the element integral back to the reference triangle gives</p>
+<section id="tangent-triangle-correction">
+<h2>Tangent Triangle Correction<a class="headerlink" href="#tangent-triangle-correction" title="Link to this heading">#</a></h2>
+<p>The singular correction is computed on <span class="math notranslate nohighlight">\(\phi_{\mathrm{lin}}(\widehat T)\)</span>. Let <span class="math notranslate nohighlight">\(J\)</span> denote the surface Jacobian of <span class="math notranslate nohighlight">\(\phi\)</span>. Pulling the element integral back to the reference triangle gives</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}
 \begin{aligned}
 u_T(x)
-&amp;=\int_{\phi(\widehat T)}G(x,y)\,\rho(y)\,dy\\
+&amp;=\int_T G(x,y)\,\rho(y)\,d\sigma_y\\
 &amp;=\int_{\widehat T}G(x,\phi(\widehat y))\,\widehat\rho(\widehat y)\,J(\widehat y)\,d\widehat y.
 \end{aligned}
 \end{split}\]</div>
-<p>We add and subtract the tangent triangle:</p>
+<p>For the Laplace and Helmholtz single layer kernels, the singular part is</p>
+<div class="math notranslate nohighlight">
+\[
+G_{\mathrm{sing}}(x,y)=\frac{1}{4\pi|x-y|}
+\]</div>
+<p>We add and subtract this part on the tangent triangle:</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}
 \begin{aligned}
 u_T(x)
-&amp;=\int_{\widehat T}G(x,\phi_{\mathrm{lin}}(\widehat y))\,
+&amp;=\int_{\widehat T}G_{\mathrm{sing}}(x,\phi_{\mathrm{lin}}(\widehat y))\,
 \widehat\rho(\widehat x_0)\,J(\widehat x_0)\,d\widehat y\\
 &amp;\quad+\int_{\widehat T}\Big(
 G(x,\phi(\widehat y))\,\widehat\rho(\widehat y)\,J(\widehat y)
--G(x,\phi_{\mathrm{lin}}(\widehat y))\,
+-G_{\mathrm{sing}}(x,\phi_{\mathrm{lin}}(\widehat y))\,
 \widehat\rho(\widehat x_0)\,J(\widehat x_0)
 \Big)d\widehat y.
 \end{aligned}
 \end{split}\]</div>
-<p>The tangent triangle captures the leading local singularity. For the Laplace kernel <span class="math notranslate nohighlight">\(G_0(x,y)=\frac{1}{4\pi|x-y|}\)</span> this cancels the leading <span class="math notranslate nohighlight">\(\frac{1}{r}\)</span> behavior, leaving a bounded remainder for standard quadrature. For Helmholtz,</p>
+<p>For the Laplace kernel this cancels the leading <span class="math notranslate nohighlight">\(1/r\)</span> behavior and leaves a bounded remainder. For Helmholtz,</p>
 <div class="math notranslate nohighlight">
 \[
-G_k(x,y)=\frac{e^{ik|x-y|}}{4\pi|x-y|}
-=\frac{1}{4\pi r}+\frac{ik}{4\pi}+O(r),
+G_\kappa(x,y)=\frac{e^{i\kappa|x-y|}}{4\pi|x-y|}
+=\frac{1}{4\pi r}+\frac{i\kappa}{4\pi}+O(r),
 \qquad r=|x-y|,
 \]</div>
-<p>so the same subtraction removes the singular part and only a smooth Helmholtz correction remains. The first integral is evaluated by the exact triangle formula <span class="bibtex-citation" id="id1">[<a class="reference internal" href="../references.html#id5" title="Nail A. Gumerov and Ramani Duraiswami. Analytical computation of boundary integrals for the helmholtz equation in three dimensions. 2021. arXiv:2103.17196, doi:10.48550/arXiv.2103.17196.">GD21</a>]</span>, the second part is evaluated using standard Gauss quadrature.</p>
+<p>so the same subtraction removes the singular part and leaves a smooth Helmholtz remainder. The tangent triangle integral is evaluated by the exact formula <span class="bibtex-citation" id="id1">[<a class="reference internal" href="../references.html#id5" title="Nail A. Gumerov and Ramani Duraiswami. Analytical computation of boundary integrals for the helmholtz equation in three dimensions. 2021. arXiv:2103.17196, doi:10.48550/arXiv.2103.17196.">GD21</a>]</span>; the remainder uses standard Gauss quadrature.</p>
 </section>
-<section id="near-and-far-split">
-<h2>Near and Far Split<a class="headerlink" href="#near-and-far-split" title="Link to this heading">#</a></h2>
-<p>For each target point, the surface mesh is split into far elements and near elements,</p>
+<section id="fmm-near-field-correction">
+<h2>FMM Near Field Correction<a class="headerlink" href="#fmm-near-field-correction" title="Link to this heading">#</a></h2>
+<p>Let <span class="math notranslate nohighlight">\(\mathcal N(x)\)</span> be the set of source triangles close to the target point <span class="math notranslate nohighlight">\(x\)</span>. The FMM result already contains their ordinary quadrature contributions, which are corrected by</p>
 <div class="math notranslate nohighlight">
 \[
-\mathcal T=\mathcal F(x)\,\dot\cup\,\mathcal N(x).
+u(x)\approx u_{\mathrm{FMM}}(x)
++\sum_{T\in\mathcal N(x)}
+\left(u_T^{\mathrm{corr}}(x)-u_T^{\mathrm{quad}}(x)\right).
 \]</div>
-<p>The potential is written as</p>
-<div class="math notranslate nohighlight">
-\[
-u(x)=
-\sum_{T\in\mathcal F(x)}\int_T G(x,y)\rho(y)\,dy
-+
-\sum_{T\in\mathcal N(x)}\int_T G(x,y)\rho(y)\,dy.
-\]</div>
-<p>The far element integrals are smooth for this target and are evaluated using FMM. The near element integrals use the analytical correction above.</p>
+<p><span class="math notranslate nohighlight">\(u_T^{\mathrm{quad}}\)</span> is the contribution already represented by FMM, and <span class="math notranslate nohighlight">\(u_T^{\mathrm{corr}}\)</span> includes the tangent triangle correction. The current implementation marks a triangle as near when the target distance to its center is smaller than the element size.</p>
 </section>
 </section>
 
@@ -505,7 +503,7 @@ u(x)=
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Python API</p>
+        <p class="prev-next-title">BEM Python API</p>
       </div>
     </a>
     <a class="right-next"
@@ -536,8 +534,8 @@ u(x)=
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#local-geometry">Local Geometry</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analytical-correction">Analytical Correction</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#near-and-far-split">Near and Far Split</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tangent-triangle-correction">Tangent Triangle Correction</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fmm-near-field-correction">FMM Near Field Correction</a></li>
 </ul>
   </nav></div>
 
