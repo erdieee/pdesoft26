@@ -65,7 +65,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'bem/fmm';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="BEM Python API" href="python_api.html" />
+    <link rel="next" title="Near Field Potential Evaluation" href="nearfield_potential.html" />
     <link rel="prev" title="Boundary Element Methods" href="01_intro.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -174,8 +174,8 @@
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="01_intro.html">Boundary Element Methods</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Fast Multipole Acceleration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="python_api.html">BEM Python API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="nearfield_potential.html">Near Field Potential Evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python_api.html">BEM Python API</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Examples</span></p>
 <ul class="nav bd-sidenav">
@@ -384,7 +384,6 @@
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#regular-and-singular-expansions">Regular and Singular Expansions</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bessel-and-hankel-stability">Bessel and Hankel Stability</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#multilevel-fmm">Multilevel FMM</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fmm-controls">FMM Controls</a></li>
 </ul>
             </nav>
         </div>
@@ -403,7 +402,7 @@
 \[
   u(x_j) \approx \sum_{i=1}^N G(x_j,y_i)\,s_i, \qquad j=1,\dots,M.
 \]</div>
-<p>Without compression this is dense interaction work: storage is roughly <span class="math notranslate nohighlight">\(O(MN)\)</span> and a direct matrix vector product is also <span class="math notranslate nohighlight">\(O(MN)\)</span>.</p>
+<p>Forming the complete interaction matrix requires <span class="math notranslate nohighlight">\(O(MN)\)</span> storage, while direct evaluation of the sum costs <span class="math notranslate nohighlight">\(O(MN)\)</span> operations.</p>
 <p>The fast multipole method avoids treating all interactions equally. Nearby interactions are kept accurate and direct while far interactions are approximated by expansions around cluster centers.</p>
 <section id="where-fmm-enters-bem">
 <h2>Where FMM Enters BEM<a class="headerlink" href="#where-fmm-enters-bem" title="Link to this heading">#</a></h2>
@@ -537,37 +536,6 @@
 </ul>
 <p>The approximation is unchanged; batching improves reuse by processing several coefficient vectors together.</p>
 </section>
-<section id="fmm-controls">
-<h2>FMM Controls<a class="headerlink" href="#fmm-controls" title="Link to this heading">#</a></h2>
-<p>FMM can be enabled or disabled per boundary integral operator.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">A_fmm</span> <span class="o">=</span> <span class="n">LaplaceSL</span><span class="p">(</span><span class="n">u</span> <span class="o">*</span> <span class="n">ds</span><span class="p">,</span> <span class="n">use_fmm</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">*</span> <span class="n">v</span> <span class="o">*</span> <span class="n">ds</span>
-<span class="n">A_direct</span> <span class="o">=</span> <span class="n">LaplaceSL</span><span class="p">(</span><span class="n">u</span> <span class="o">*</span> <span class="n">ds</span><span class="p">,</span> <span class="n">use_fmm</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">*</span> <span class="n">v</span> <span class="o">*</span> <span class="n">ds</span>
-</pre></div>
-</div>
-<p>FMM parameters are exposed as keyword arguments:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">A</span> <span class="o">=</span> <span class="n">HelmholtzSL</span><span class="p">(</span>
-    <span class="n">u</span> <span class="o">*</span> <span class="n">ds</span><span class="p">,</span>
-    <span class="n">kappa</span><span class="p">,</span>
-    <span class="n">fmm_maxdirect</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
-    <span class="n">fmm_minorder</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
-    <span class="n">fmm_order_factor</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
-    <span class="n">fmm_separation</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
-    <span class="n">fmm_eval_separation</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">*</span> <span class="n">v</span> <span class="o">*</span> <span class="n">ds</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">GetFMMInfo()</span></code> returns tree and operator data for the generated FMM matrix action.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">info</span> <span class="o">=</span> <span class="n">A_fmm</span><span class="o">.</span><span class="n">GetFMMInfo</span><span class="p">()</span>
-
-<span class="n">info</span><span class="p">[</span><span class="s2">&quot;kernel_name&quot;</span><span class="p">]</span>
-<span class="n">info</span><span class="p">[</span><span class="s2">&quot;source_size&quot;</span><span class="p">],</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;target_size&quot;</span><span class="p">]</span>
-<span class="n">info</span><span class="p">[</span><span class="s2">&quot;nearfield_fraction&quot;</span><span class="p">]</span>
-<span class="n">info</span><span class="p">[</span><span class="s2">&quot;multipole_memory_mb&quot;</span><span class="p">]</span>
-<span class="n">info</span><span class="p">[</span><span class="s2">&quot;source&quot;</span><span class="p">][</span><span class="s2">&quot;depth&quot;</span><span class="p">],</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;target&quot;</span><span class="p">][</span><span class="s2">&quot;depth&quot;</span><span class="p">]</span>
-<span class="n">info</span><span class="p">[</span><span class="s2">&quot;source&quot;</span><span class="p">][</span><span class="s2">&quot;order_min&quot;</span><span class="p">],</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;source&quot;</span><span class="p">][</span><span class="s2">&quot;order_max&quot;</span><span class="p">]</span>
-</pre></div>
-</div>
-</section>
 </section>
 
     <script type="text/x-thebe-config">
@@ -610,11 +578,11 @@
       </div>
     </a>
     <a class="right-next"
-       href="python_api.html"
+       href="nearfield_potential.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">BEM Python API</p>
+        <p class="prev-next-title">Near Field Potential Evaluation</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -641,7 +609,6 @@
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#regular-and-singular-expansions">Regular and Singular Expansions</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bessel-and-hankel-stability">Bessel and Hankel Stability</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#multilevel-fmm">Multilevel FMM</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fmm-controls">FMM Controls</a></li>
 </ul>
   </nav></div>
 
