@@ -9,8 +9,8 @@ parts:
     chapters:
       - file: bem/01_intro
       - file: bem/fmm
-      - file: bem/python_api
       - file: bem/nearfield_potential
+      - file: bem/python_api
   - caption: Examples
     chapters:
       - file: bem/laplace_capacitor
