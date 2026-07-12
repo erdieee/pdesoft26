@@ -494,9 +494,10 @@
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">V_region.mat</span></code> for the matrix action,</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">V_region.GetFMMInfo()</span></code> for tree and expansion statistics,</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">V_region.NearFieldMatrix()</span></code> for the sparse near field correction,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">V_region.NearFieldMatrix()</span></code> for accurately assembled touching element entries,</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">V_region.CalcSubMatrix(rows,</span> <span class="pre">cols)</span></code> for selected matrix entries.</p></li>
 </ul>
+<p><code class="docutils literal notranslate"><span class="pre">NearFieldMatrix()</span></code> is sparse because it contains only same panel, common edge, and common vertex interactions. In the FMM matrix action, these accurate entries replace the ordinary quadrature values for the same pairs.</p>
 </section>
 <section id="right-hand-side-and-solve">
 <h2>Right Hand Side and Solve<a class="headerlink" href="#right-hand-side-and-solve" title="Link to this heading">#</a></h2>
