@@ -486,7 +486,7 @@
 \[
   f_{n+1}(z) = \frac{2n+1}{z} f_n(z) - f_{n-1}(z).
 \]</div>
-<p>For small <span class="math notranslate nohighlight">\(|z|\)</span> and large <span class="math notranslate nohighlight">\(n\)</span>, the radial functions can have very different magnitudes and direct recurrence may overflow or underflow. NGSolve uses a stable backward recurrence, treats small arguments separately, and rescales large intermediate values.</p>
+<p>For small <span class="math notranslate nohighlight">\(|z|\)</span> and large <span class="math notranslate nohighlight">\(n\)</span>, direct recurrence may overflow or underflow. NGSolve computes <span class="math notranslate nohighlight">\(j_n\)</span> backwards and rescales large intermediate values. A forward pass applies the accumulated scaling and normalizes the result. The functions <span class="math notranslate nohighlight">\(y_n\)</span> are then computed forwards and combined as <span class="math notranslate nohighlight">\(h_n^{(1)}=j_n+i y_n\)</span>.</p>
 </section>
 <section id="multilevel-fmm">
 <h2>Multilevel FMM<a class="headerlink" href="#multilevel-fmm" title="Link to this heading">#</a></h2>
