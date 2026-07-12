@@ -34,7 +34,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=3c74b3bc" />
     <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=9c3e77be" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
-    <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css?v=8cd3d715" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css?v=4fa983c6" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
   
@@ -382,8 +382,6 @@
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#implemented-capabilities">Implemented Capabilities</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#helmholtz-single-layer-potential">Helmholtz Single Layer Potential</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#from-potential-to-galerkin-operator">From Potential to Galerkin Operator</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#boundaries-and-fmm-controls">Boundaries and FMM Controls</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#right-hand-side-and-solve">Right Hand Side and Solve</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#evaluate-the-potential">Evaluate the Potential</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#vector-valued-operators">Vector Valued Operators</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#other-kernels-same-pattern">Other Kernels, Same Pattern</a></li>
@@ -475,42 +473,13 @@
 </table>
 </div>
 <p>Using <code class="docutils literal notranslate"><span class="pre">use_fmm=False</span></code> in <code class="docutils literal notranslate"><span class="pre">HelmholtzSL</span></code> switches to direct operator assembly for comparison.</p>
-</section>
-<section id="boundaries-and-fmm-controls">
-<h2>Boundaries and FMM Controls<a class="headerlink" href="#boundaries-and-fmm-controls" title="Link to this heading">#</a></h2>
-<p>The first boundary region contains the sources and the second contains the test functions:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">SL_region</span> <span class="o">=</span> <span class="n">HelmholtzSL</span><span class="p">(</span>
-    <span class="n">rho</span> <span class="o">*</span> <span class="n">ds</span><span class="p">(</span><span class="s2">&quot;source&quot;</span><span class="p">),</span>
-    <span class="n">kappa</span><span class="p">,</span>
-    <span class="n">use_fmm</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">fmm_minorder</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
-    <span class="n">fmm_separation</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="n">V_region</span> <span class="o">=</span> <span class="n">SL_region</span> <span class="o">*</span> <span class="n">eta</span> <span class="o">*</span> <span class="n">ds</span><span class="p">(</span><span class="s2">&quot;target&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>The names <code class="docutils literal notranslate"><span class="pre">source</span></code> and <code class="docutils literal notranslate"><span class="pre">target</span></code> refer to named mesh boundaries. Omitting the name uses the full boundary.</p>
 <p>The resulting operator provides</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">V_region.mat</span></code> for the matrix action,</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">V_region.GetFMMInfo()</span></code> for tree and expansion statistics,</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">V_region.NearFieldMatrix()</span></code> for accurately assembled touching element entries,</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">V_region.CalcSubMatrix(rows,</span> <span class="pre">cols)</span></code> for selected matrix entries.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">V.mat</span></code> for the matrix action,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">V.GetFMMInfo()</span></code> for tree and expansion statistics,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">V.NearFieldMatrix()</span></code> for the sparse matrix of specially integrated same panel, common edge, and common vertex interactions,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">V.CalcSubMatrix(rows,</span> <span class="pre">cols)</span></code> for selected matrix entries.</p></li>
 </ul>
-<p><code class="docutils literal notranslate"><span class="pre">NearFieldMatrix()</span></code> is sparse because it contains only same panel, common edge, and common vertex interactions. In the FMM matrix action, these accurate entries replace the ordinary quadrature values for the same pairs.</p>
-</section>
-<section id="right-hand-side-and-solve">
-<h2>Right Hand Side and Solve<a class="headerlink" href="#right-hand-side-and-solve" title="Link to this heading">#</a></h2>
-<p>The right hand side <span class="math notranslate nohighlight">\(\langle g,\eta_h\rangle_\Gamma\)</span> and the discrete density are</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">rhs</span> <span class="o">=</span> <span class="n">LinearForm</span><span class="p">(</span><span class="n">g</span> <span class="o">*</span> <span class="n">eta</span> <span class="o">*</span> <span class="n">ds</span><span class="p">)</span><span class="o">.</span><span class="n">Assemble</span><span class="p">()</span>
-<span class="n">rho_h</span> <span class="o">=</span> <span class="n">GridFunction</span><span class="p">(</span><span class="n">fes</span><span class="p">)</span>
-
-<span class="k">with</span> <span class="n">TaskManager</span><span class="p">():</span>
-    <span class="n">rho_h</span><span class="o">.</span><span class="n">vec</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">solvers</span><span class="o">.</span><span class="n">GMRes</span><span class="p">(</span>
-        <span class="n">A</span><span class="o">=</span><span class="n">A</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="n">rhs</span><span class="o">.</span><span class="n">vec</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span> <span class="n">maxsteps</span><span class="o">=</span><span class="mi">200</span>
-    <span class="p">)</span>
-</pre></div>
-</div>
 </section>
 <section id="evaluate-the-potential">
 <h2>Evaluate the Potential<a class="headerlink" href="#evaluate-the-potential" title="Link to this heading">#</a></h2>
@@ -639,8 +608,6 @@
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#implemented-capabilities">Implemented Capabilities</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#helmholtz-single-layer-potential">Helmholtz Single Layer Potential</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#from-potential-to-galerkin-operator">From Potential to Galerkin Operator</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#boundaries-and-fmm-controls">Boundaries and FMM Controls</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#right-hand-side-and-solve">Right Hand Side and Solve</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#evaluate-the-potential">Evaluate the Potential</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#vector-valued-operators">Vector Valued Operators</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#other-kernels-same-pattern">Other Kernels, Same Pattern</a></li>

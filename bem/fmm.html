@@ -34,7 +34,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=3c74b3bc" />
     <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=9c3e77be" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
-    <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css?v=8cd3d715" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css?v=4fa983c6" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
   
@@ -427,25 +427,24 @@
   }_{\text{FMM source to target sum}}.
 \]</div>
 <p>The inner sum has exactly the source to target form accelerated by FMM.</p>
-<p>NGSolve combines it with a sparse correction:</p>
-<div class="math notranslate nohighlight">
-\[
-  A = A_{\mathrm{FMM}} + A_{\mathrm{corr}},
-\]</div>
-<p>where <span class="math notranslate nohighlight">\(A_{\mathrm{corr}}\)</span> corrects interactions between touching boundary elements.</p>
 </section>
 <section id="near-field-and-far-field">
 <h2>Near Field and Far Field<a class="headerlink" href="#near-field-and-far-field" title="Link to this heading">#</a></h2>
-<p>For a target cluster, source interactions are split into two classes:</p>
+<p>The FMM splits quadrature point interactions by cluster geometry:</p>
 <ul class="simple">
-<li><p><strong>near field:</strong> source and target clusters are close - these terms are evaluated directly or corrected by special quadrature,</p></li>
-<li><p><strong>far field:</strong> clusters are well separated - their combined effect is represented by multipole and local expansions.</p></li>
+<li><p><strong>near field:</strong> boxes that are not well separated are evaluated directly using SIMD,</p></li>
+<li><p><strong>far field:</strong> well separated boxes are evaluated using multipole and local expansions.</p></li>
 </ul>
-<p>In the implementation this has two near field parts:</p>
-<ul class="simple">
-<li><p><strong>Sparse BEM correction:</strong> touching elements use accurate Sauter Schwab rules <span class="bibtex-citation" id="id1">[<a class="reference internal" href="../references.html#id4" title="Stefan Sauter and Christoph Schwab. Boundary Element Methods. Volume 39 of Springer Series in Computational Mathematics. Springer, 2009. ISBN 978-3-540-68093-2.">SS09</a>]</span> based on Duffy transformations. Their ordinary quadrature contribution is replaced by the accurate local matrix.</p></li>
-<li><p><strong>Direct FMM fallback:</strong> boxes that are not well separated are evaluated directly. SIMD packs several leaf sources and evaluates their kernel values together.</p></li>
-</ul>
+<p>Touching boundary elements require an additional sparse BEM correction:</p>
+<div class="math notranslate nohighlight">
+\[
+  A = A_{\mathrm{FMM}}
+  + \left(
+      A_{\mathrm{touch}}^{\mathrm{accurate}}
+      - A_{\mathrm{touch}}^{\mathrm{quadrature}}
+    \right).
+\]</div>
+<p>The accurate entries use Sauter Schwab rules <span class="bibtex-citation" id="id1">[<a class="reference internal" href="../references.html#id4" title="Stefan Sauter and Christoph Schwab. Boundary Element Methods. Volume 39 of Springer Series in Computational Mathematics. Springer, 2009. ISBN 978-3-540-68093-2.">SS09</a>]</span> based on Duffy transformations.</p>
 </section>
 <section id="regular-and-singular-expansions">
 <h2>Regular and Singular Expansions<a class="headerlink" href="#regular-and-singular-expansions" title="Link to this heading">#</a></h2>
