@@ -14,6 +14,7 @@ parts:
   - caption: Examples
     chapters:
       - file: bem/laplace_capacitor
+      - file: bem/htool
       - file: bem/poisson
       - file: bem/maxwell_stabilized
       - file: bem/brakhage_werner
