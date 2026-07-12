@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Maxwell Stabilized &#8212; Boundary Element Methods in NGSolve</title>
+    <title>Stabilized Maxwell BEM &#8212; Boundary Element Methods in NGSolve</title>
   
   
   
@@ -180,8 +180,9 @@
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Examples</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="laplace_capacitor.html">Laplace Plate Capacitor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="htool.html">NGSolve BEM with HTool</a></li>
 <li class="toctree-l1"><a class="reference internal" href="poisson.html">Poisson Equation BEM</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">Maxwell Stabilized</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Stabilized Maxwell BEM</a></li>
 <li class="toctree-l1"><a class="reference internal" href="brakhage_werner.html">Scattering Problem</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">References</span></p>
@@ -368,7 +369,7 @@
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>Maxwell Stabilized</h1>
+    <h1>Stabilized Maxwell BEM</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -378,8 +379,7 @@
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#comparison-of-the-eigenvalue-distribution">Comparison of the eigenvalue distribution</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#stability-of-system-matrices">Stability of system matrices</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#condition-number">Condition Number</a></li>
 </ul>
             </nav>
         </div>
@@ -391,9 +391,9 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="maxwell-stabilized">
-<h1>Maxwell Stabilized<a class="headerlink" href="#maxwell-stabilized" title="Link to this heading">#</a></h1>
-<p>We consider a perfect conductor <span class="math notranslate nohighlight">\(\Omega \subset \mathbb R^3\)</span> emitting an electric field into <span class="math notranslate nohighlight">\(\Omega^c\)</span>. The scattered electric field <span class="math notranslate nohighlight">\(\boldsymbol E\)</span> solves the following Dirichlet boundary value problem:</p>
+  <section class="tex2jax_ignore mathjax_ignore" id="stabilized-maxwell-bem">
+<h1>Stabilized Maxwell BEM<a class="headerlink" href="#stabilized-maxwell-bem" title="Link to this heading">#</a></h1>
+<p>We consider electromagnetic scattering by a perfect conductor <span class="math notranslate nohighlight">\(\Omega \subset \mathbb R^3\)</span>. The scattered electric field <span class="math notranslate nohighlight">\(\boldsymbol E\)</span> solves the following exterior boundary value problem:</p>
 <div class="math notranslate nohighlight">
 \[\begin{split} \left\{ \begin{array}{rcl l} \mathbf{curl} \, \mathbf{curl}\, \boldsymbol E - \kappa^2 \, \boldsymbol E &amp;=&amp; \boldsymbol 0, \quad &amp;\textnormal{in } \Omega^c \subset \mathbb R^3\,,\\ \gamma_R \,\boldsymbol E &amp;=&amp; \boldsymbol m, \quad &amp; \textnormal{on }\Gamma \\ \left\| \mathbf{curl} \, \boldsymbol E( x) - i\,\omega\,\epsilon \, \boldsymbol E( x)\right\| &amp;=&amp; \mathcal O\left( \displaystyle \frac{1}{\| x\|^2}\right), &amp;\textnormal{for} \; \|x\| \to \infty\,.\end{array} \right. \end{split}\]</div>
 <p>The electric field <span class="math notranslate nohighlight">\(\boldsymbol E\)</span> is given by</p>
@@ -407,7 +407,7 @@
 -\frac{1}{\kappa^2}\langle \operatorname{div}_\Gamma\phi,\gamma_0 S_\kappa(\operatorname{div}_\Gamma j)\rangle_\Gamma
 =\langle m\times n,\phi\rangle_\Gamma, \qquad S_\kappa q(x) = \int\limits_\Gamma \frac{1}{4\pi}\frac{e^{i\kappa\|x-y\|}}{\|x-y\|}\,q(y)\,\mathrm d y.
 \]</div>
-<p>It is well known that the numerical schemes which rely on the classical second order equation are not stable when passing to the limit <span class="math notranslate nohighlight">\(\kappa \to 0\)</span>, with condition number <span class="math notranslate nohighlight">\(\mathcal O (\kappa^{-2})\)</span> <span class="bibtex-citation" id="id1">[<a class="reference internal" href="../references.html#id6" title="Lucy Weggler. High Order Boundary Element Methods. PhD thesis, Universität des Saarlandes, 2011.">Weg11</a>]</span>. The reason for this is that the Gaussian law, which is implicitly embedded for normal wave numbers, is no longer satisfied.</p>
+<p>The classical second order formulation becomes unstable as <span class="math notranslate nohighlight">\(\kappa \to 0\)</span>, with condition number <span class="math notranslate nohighlight">\(\mathcal O(\kappa^{-2})\)</span> <span class="bibtex-citation" id="id1">[<a class="reference internal" href="../references.html#id6" title="Lucy Weggler. High Order Boundary Element Methods. PhD thesis, Universität des Saarlandes, 2011.">Weg11</a>]</span>. In this limit, Gauss’s law is no longer enforced by the formulation.</p>
 <p>The stabilized system</p>
 <div class="amsmath math notranslate nohighlight">
 \[\begin{align*}
@@ -427,7 +427,7 @@
 \end{aligned}
 \right.
 \end{align*}\]</div>
-<p>is conditioned with <span class="math notranslate nohighlight">\(\mathcal O(1)\)</span>. We solve the discretized system</p>
+<p>has condition number <span class="math notranslate nohighlight">\(\mathcal O(1)\)</span>. We solve the discretized system</p>
 <div class="amsmath math notranslate nohighlight">
 \[\begin{align*}
 \left( \begin{array}{cc} 
@@ -451,10 +451,8 @@ Q_{\kappa}^{\top} &amp; \kappa^{2} V_{\kappa}
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">netgen.meshing</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">meshing</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">netgen.occ</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">ngsolve.la</span><span class="w"> </span><span class="kn">import</span> <span class="n">EigenValues_Preconditioner</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">ngsolve</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">ngsolve.bem</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">ngsolve.webgui</span><span class="w"> </span><span class="kn">import</span> <span class="n">Draw</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">ngsolve.krylovspace</span><span class="w"> </span><span class="kn">import</span> <span class="n">GMRes</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 </pre></div>
@@ -463,11 +461,11 @@ Q_{\kappa}^{\top} &amp; \kappa^{2} V_{\kappa}
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">compute_condition_number</span><span class="p">(</span><span class="n">mat</span><span class="p">):</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">compute_condition_number</span><span class="p">(</span><span class="n">mat</span><span class="p">,</span> <span class="n">exclude_kernel</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute condition number via SVD.&quot;&quot;&quot;</span>
     <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">svd</span><span class="p">(</span><span class="n">mat</span><span class="o">.</span><span class="n">ToDense</span><span class="p">(),</span> <span class="n">compute_uv</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">s_nonzero</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="n">s</span> <span class="o">&gt;</span> <span class="mf">1e-14</span> <span class="o">*</span> <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">s_nonzero</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">s_nonzero</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">],</span> <span class="n">s</span><span class="p">)</span> <span class="c1"># exclude the one dimensional kernel</span>
+    <span class="n">smallest</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="k">if</span> <span class="n">exclude_kernel</span> <span class="k">else</span> <span class="n">s</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">smallest</span><span class="p">,</span> <span class="n">s</span>
 </pre></div>
 </div>
 </div>
@@ -537,7 +535,7 @@ Q_{\kappa}^{\top} &amp; \kappa^{2} V_{\kappa}
     <span class="k">for</span> <span class="n">kappa</span> <span class="ow">in</span> <span class="n">kappa_values</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">A_mat</span><span class="p">,</span> <span class="n">sol</span><span class="p">,</span> <span class="n">fes</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">solve_stabilized</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">kappa</span><span class="p">,</span> <span class="n">order</span><span class="p">,</span> <span class="n">intorder</span><span class="p">,</span> <span class="n">use_fmm</span><span class="p">)</span>
-            <span class="n">cond</span><span class="p">,</span> <span class="n">lams</span> <span class="o">=</span> <span class="n">compute_condition_number</span><span class="p">(</span><span class="n">A_mat</span><span class="p">)</span>
+            <span class="n">cond</span><span class="p">,</span> <span class="n">lams</span> <span class="o">=</span> <span class="n">compute_condition_number</span><span class="p">(</span><span class="n">A_mat</span><span class="p">,</span> <span class="n">exclude_kernel</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">results_stabilized</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">kappa</span><span class="p">,</span> <span class="n">A_mat</span><span class="p">,</span> <span class="n">sol</span><span class="p">,</span> <span class="n">fes</span><span class="p">,</span> <span class="n">cond</span><span class="p">,</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">cond</span><span class="p">,</span> <span class="n">lams</span><span class="p">))</span>
 
             <span class="n">A_mat</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">fes</span><span class="p">,</span> <span class="n">success</span> <span class="o">=</span> <span class="n">solve_classical</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">kappa</span><span class="p">,</span> <span class="n">order</span><span class="p">,</span> <span class="n">intorder</span><span class="p">,</span> <span class="n">use_fmm</span><span class="p">)</span>
@@ -559,47 +557,9 @@ Q_{\kappa}^{\top} &amp; \kappa^{2} V_{\kappa}
 </div>
 </div>
 </div>
-<section id="comparison-of-the-eigenvalue-distribution">
-<h2>Comparison of the eigenvalue distribution<a class="headerlink" href="#comparison-of-the-eigenvalue-distribution" title="Link to this heading">#</a></h2>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">plot_lams</span><span class="p">(</span><span class="n">lams_stab</span><span class="p">,</span> <span class="n">lams_class</span><span class="p">,</span> <span class="n">title</span><span class="p">):</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">lams_stab</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;stabilized&quot;</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">lams_class</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;classical&quot;</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;*&quot;</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">yscale</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;ndof&quot;</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;lams&quot;</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-
-<span class="n">prev_cond_stab</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="n">prev_cond_class</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="n">show_plots</span> <span class="o">=</span> <span class="kc">False</span>
-
-<span class="k">if</span> <span class="n">show_plots</span><span class="p">:</span>
-    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">((</span><span class="n">k_stab</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span><span class="p">,</span> <span class="n">cond_stab</span><span class="p">,</span> <span class="n">lams_stab</span><span class="p">),</span> <span class="p">(</span><span class="n">k_class</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span><span class="p">,</span> <span class="n">cond_class</span><span class="p">,</span> <span class="n">lams_class</span><span class="p">))</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">results_stabilized</span><span class="p">,</span> <span class="n">results_classical</span><span class="p">)):</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;kappa: </span><span class="si">{</span><span class="n">k_stab</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;stabilized: cond = </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">cond_stab</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;classical: cond = </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">cond_class</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    
-        <span class="k">if</span> <span class="n">prev_cond_stab</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;stabilized: ratio = </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">cond_stab</span><span class="o">/</span><span class="n">prev_cond_stab</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span><span class="si">}</span><span class="s2">, cond = </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">cond_stab</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span><span class="si">}</span><span class="s2">, prev_cond = </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">prev_cond_stab</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;classical: ratio = </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">cond_class</span><span class="o">/</span><span class="n">prev_cond_class</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span><span class="si">}</span><span class="s2">, cond = </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">cond_class</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span><span class="si">}</span><span class="s2">, prev_cond = </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">prev_cond_class</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    
-        <span class="n">plot_lams</span><span class="p">(</span><span class="n">lams_stab</span><span class="p">,</span> <span class="n">lams_class</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;kappa=</span><span class="si">{</span><span class="n">k_stab</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    
-        <span class="n">prev_cond_stab</span> <span class="o">=</span> <span class="n">cond_stab</span>
-        <span class="n">prev_cond_class</span> <span class="o">=</span> <span class="n">cond_class</span>
-</pre></div>
-</div>
-</div>
-</div>
-<p>We notice that the condition number of the classical solution grows with <span class="math notranslate nohighlight">\(O(\kappa^{-2})\)</span> whilst the condition number of the stabilized formulation stays constant.</p>
-</section>
-<section id="stability-of-system-matrices">
-<h2>Stability of system matrices<a class="headerlink" href="#stability-of-system-matrices" title="Link to this heading">#</a></h2>
+<section id="condition-number">
+<h2>Condition Number<a class="headerlink" href="#condition-number" title="Link to this heading">#</a></h2>
+<p>The condition number of the classical system grows with <span class="math notranslate nohighlight">\(O(\kappa^{-2})\)</span>, while the stabilized formulation remains bounded.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">kappas_stabilized</span> <span class="o">=</span> <span class="p">[]</span>
@@ -624,7 +584,7 @@ Q_{\kappa}^{\top} &amp; \kappa^{2} V_{\kappa}
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../_images/8902dbe50bd1c8f78e9c0e962c7511d36300305570743e96a944fc101c8b0a26.png" src="../_images/8902dbe50bd1c8f78e9c0e962c7511d36300305570743e96a944fc101c8b0a26.png" />
+<img alt="../_images/f6a4c24f0d62ffb36ede0efe8795b7a3d3bedcc43c785210a27450c2416c81c7.png" src="../_images/f6a4c24f0d62ffb36ede0efe8795b7a3d3bedcc43c785210a27450c2416c81c7.png" />
 </div>
 </div>
 <p><strong>References (theoretical and numerical results):</strong></p>
@@ -701,8 +661,7 @@ Q_{\kappa}^{\top} &amp; \kappa^{2} V_{\kappa}
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#comparison-of-the-eigenvalue-distribution">Comparison of the eigenvalue distribution</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#stability-of-system-matrices">Stability of system matrices</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#condition-number">Condition Number</a></li>
 </ul>
   </nav></div>
 
