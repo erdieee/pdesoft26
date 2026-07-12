@@ -7,7 +7,7 @@ logo: NGSlogo.png
 copyright : "2026"  # Copyright year to be placed in the footer
 
 repository:
-  url: https://github.com/erdieee/ngs26
+  url: https://github.com/erdieee/pdesoft26
   path_to_book: "" # Leave empty if your _config.yml is in the root directory
   branch: main     # Change to 'master' if your primary branch is master
 
@@ -17,7 +17,6 @@ exclude_patterns:
   - ".git/**"
   - ".ipynb_checkpoints/**"
   - "README.md"
-  - "SciCADE.ipynb"
   
 # Execute notebooks when their outputs are missing or stale.
 # See https://jupyterbook.org/content/execute.html
